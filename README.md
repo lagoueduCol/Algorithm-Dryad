@@ -1,0 +1,2 @@
+# LaGouAlgo
+Algorithms for LaGou

@@ -1,0 +1,102 @@
+/*
+ * @lc app=leetcode.cn id=567 lang=java
+ *
+ * [567] 字符串的排列
+ *
+ * https://leetcode-cn.com/problems/permutation-in-string/description/
+ *
+ * algorithms
+ * Medium (41.56%)
+ * Likes:    305
+ * Dislikes: 0
+ * Total Accepted:    73.9K
+ * Total Submissions: 177.3K
+ * Testcase Example:  '"ab"\n"eidbaooo"'
+ *
+ * 给定两个字符串 s1 和 s2，写一个函数来判断 s2 是否包含 s1 的排列。
+ * 
+ * 换句话说，第一个字符串的排列之一是第二个字符串的子串。
+ * 
+ * 
+ * 
+ * 示例 1：
+ * 
+ * 
+ * 输入: s1 = "ab" s2 = "eidbaooo"
+ * 输出: True
+ * 解释: s2 包含 s1 的排列之一 ("ba").
+ * 
+ * 
+ * 示例 2：
+ * 
+ * 
+ * 输入: s1= "ab" s2 = "eidboaoo"
+ * 输出: False
+ * 
+ * 
+ * 
+ * 
+ * 提示：
+ * 
+ * 
+ * 输入的字符串只包含小写字母
+ * 两个字符串的长度都在 [1, 10,000] 之间
+ * 
+ * 
+ */
+
+import java.util.*;
+
+// @lc code=start
+
+class Solution {
+    public boolean checkInclusion(String A, String B) {
+        // B contains A?
+        final int blen = B == null ? 0 : B.length();
+        final int alen = A == null ? 0 : A.length();
+
+        int[] astat = new int[256];
+        int aitems = 0;
+        for (int i = 0; i < alen; i++) {
+            astat[A.charAt(i)]++;
+            if (astat[A.charAt(i)] == 1) {
+                aitems++;
+            }
+        }
+
+        int[] bstat = new int[256];
+        int bitems = 0;
+
+        int left = -1;
+        int equal = 0;
+
+        for (int i = 0; i < blen; i++) {
+            Character c = B.charAt(i);
+            bstat[c]++;
+
+            if (bstat[c] == astat[c]) {
+                equal++;
+            }
+
+            if (i - left < alen) {
+                continue;
+            }
+
+            if (equal == aitems) {
+                return true;
+            }
+
+            // reamove head
+            left++;
+            Character rm = B.charAt(left);
+            if (bstat[rm] == astat[rm]) {
+                equal--;
+            }
+            bstat[rm]--;
+        }
+
+        return false;
+    }
+}
+
+// @lc code=end

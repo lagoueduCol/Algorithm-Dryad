@@ -34,19 +34,19 @@ class Solution {
   // conn表示输入的边的集合
   // 每一项是一个三元组[点a, 点b, 需要费用c]
   public long Kruskal(int n, int m, int[][] conn) {
-      Init(n);
+    Init(n);
 
-      Arrays.sort(conn, 0, m, new Comparator<int[]>() {
-        public int compare(int[] a, int[] b) {
-            return a[2] - b[2];
-        }
-      });
-
-      for (int i = 0; i < m; i++) {
-          Union(conn[i][0], conn[i][1], conn[i][2]);
+    Arrays.sort(conn, 0, m, new Comparator<int[]>() {
+      public int compare(int[] a, int[] b) {
+        return a[2] - b[2];
       }
+    });
 
-      return cost;
+    for (int i = 0; i < m; i++) {
+      Union(conn[i][0], conn[i][1], conn[i][2]);
+    }
+
+    return cost;
   }
 }
 
@@ -65,18 +65,18 @@ public class Main {
       // 点的数目
       int n = sc.nextInt();
       if (n == 0) {
-         break;
+        break;
       }
       // 边的数目
       int m = sc.nextInt();
 
       for (int i = 0; i < m; i++) {
-          // 连接的点a
-          conn[i][0] = sc.nextInt();
-          // 连接的点b
-          conn[i][1] = sc.nextInt();
-          // 权重
-          conn[i][2] = sc.nextInt();
+        // 连接的点a
+        conn[i][0] = sc.nextInt();
+        // 连接的点b
+        conn[i][1] = sc.nextInt();
+        // 权重
+        conn[i][2] = sc.nextInt();
       }
 
       System.out.println(s.Kruskal(n, m, conn));

@@ -34,7 +34,8 @@ class Solution {
 public:
     void moveZeroes(vector<int>& A) {
         // [0..l)[l...i) [i...r](r...)
-        // 非0  0 未处理的
+        // 对应三个区间
+        // [非0 )[全0) [未处理的...)
         int l = 0, i = 0;
         while (i < A.size()) {
             if (A[i] != 0) {

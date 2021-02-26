@@ -32,10 +32,6 @@
 # @lc code=start
 class Solution(object):
     def moveZeroes(self, A):
-        """
-        :type nums: List[int]
-        :rtype: None Do not return anything, modify nums in-place instead.
-        """
         N = len(A) if A else 0
 
         i = 0

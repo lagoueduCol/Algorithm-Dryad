@@ -1,3 +1,5 @@
+import java.util.Queue;
+
 /*
  * @lc app=leetcode.cn id=743 lang=java
  *
@@ -63,8 +65,59 @@
 
 // @lc code=start
 class Solution {
-    public int networkDelayTime(int[][] times, int n, int k) {
+    class Edge {
+        public int to;
+        public int cost;
+        public Edge(int a, int b) {
+            to = a;
+            cost = b;
+        }
+    }
 
+    // times实际上是边集
+    public int networkDelayTime(int[][] times, int N, int k) {
+        if (times == null || times.length == 0) {
+            return 0;
+        }
+
+        List<List<Edge>> G = new ArrayList<>();
+        for (int i = 0; i <= N; i++) {
+            G.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < times.length; i++) {
+            final int from = times[i][0], to = times[i][1], cost = times[i][2];
+            G.get(from).add(new Edge(to, cost));
+        }
+
+        final int INF = Integer.MAX_VALUE / 2;
+        int[] ans = new int[N + 1];
+        for (int i = 0; i <= N; i++) {
+            ans[i] = INF;
+        }
+
+        Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> v1 - v2);
+        Q.add(k);
+        ans[k] = 0;
+
+        while (!Q.isEmpty()) {
+            int cur = Q.poll();
+            for (Edge e: G.get(cur)) {
+                final int next = e.to, cost = e.cost;
+                final int transCost = ans[cur] + cost;
+                if (transCost < ans[next]) {
+                    ans[next] = transCost;
+                    Q.add(next);
+                }
+            }
+        }
+
+        int maxValue = -1;
+        for (int i = 1; i <= N; i++) {
+            maxValue =  Math.max(maxValue, ans[i]);
+        }
+
+        return maxValue == INF ? -1 : maxValue;
     }
 }
 // @lc code=end

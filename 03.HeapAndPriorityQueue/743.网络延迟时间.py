@@ -62,13 +62,48 @@
 #
 
 # @lc code=start
+
+import Queue
+from Queue import PriorityQueue
+
 class Solution(object):
-    def networkDelayTime(self, times, n, k):
+    def networkDelayTime(self, times, N, k):
         """
         :type times: List[List[int]]
         :type n: int
         :type k: int
         :rtype: int
         """
+
+        INF = 2147483647
+        ans = [INF] * (N + 1)
+        ans[k] = 0
+
+        Q = PriorityQueue()
+        Q.put(k)
+        
+        # G表示Graph
+        G = []
+        for i in range(0, N+1):
+            G.append([])
+
+        for e in times:
+            G[e[0]].append([e[1], e[2]])
+
+        while Q.qsize() > 0:
+            cur = Q.get()
+            for p in G[cur]:
+                next = p[0]
+                cost = p[1]
+                if cost + ans[cur] < ans[next]:
+                    ans[next] = cost + ans[cur]
+                    Q.put(next)
+        
+        maxValue = -1
+        for i in range(1, N+1):
+            maxValue = max(maxValue, ans[i])
+        
+        return -1 if maxValue == INF else maxValue
+
 # @lc code=end
 

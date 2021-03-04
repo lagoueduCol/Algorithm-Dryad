@@ -1,0 +1,139 @@
+/*
+ * @lc app=leetcode.cn id=662 lang=java
+ *
+ * [662] 二叉树最大宽度
+ *
+ * https://leetcode-cn.com/problems/maximum-width-of-binary-tree/description/
+ *
+ * algorithms
+ * Medium (39.16%)
+ * Likes:    203
+ * Dislikes: 0
+ * Total Accepted:    16.2K
+ * Total Submissions: 41.5K
+ * Testcase Example:  '[1,3,2,5,3,null,9]'
+ *
+ * 给定一个二叉树，编写一个函数来获取这个树的最大宽度。树的宽度是所有层中的最大宽度。这个二叉树与满二叉树（full binary
+ * tree）结构相同，但一些节点为空。
+ * 
+ * 每一层的宽度被定义为两个端点（该层最左和最右的非空节点，两端点间的null节点也计入长度）之间的长度。
+ * 
+ * 示例 1:
+ * 
+ * 
+ * 输入: 
+ * 
+ * ⁠          1
+ * ⁠        /   \
+ * ⁠       3     2
+ * ⁠      / \     \  
+ * ⁠     5   3     9 
+ * 
+ * 输出: 4
+ * 解释: 最大值出现在树的第 3 层，宽度为 4 (5,3,null,9)。
+ * 
+ * 
+ * 示例 2:
+ * 
+ * 
+ * 输入: 
+ * 
+ * ⁠         1
+ * ⁠        /  
+ * ⁠       3    
+ * ⁠      / \       
+ * ⁠     5   3     
+ * 
+ * 输出: 2
+ * 解释: 最大值出现在树的第 3 层，宽度为 2 (5,3)。
+ * 
+ * 
+ * 示例 3:
+ * 
+ * 
+ * 输入: 
+ * 
+ * ⁠         1
+ * ⁠        / \
+ * ⁠       3   2 
+ * ⁠      /        
+ * ⁠     5      
+ * 
+ * 输出: 2
+ * 解释: 最大值出现在树的第 2 层，宽度为 2 (3,2)。
+ * 
+ * 
+ * 示例 4:
+ * 
+ * 
+ * 输入: 
+ * 
+ * ⁠         1
+ * ⁠        / \
+ * ⁠       3   2
+ * ⁠      /     \  
+ * ⁠     5       9 
+ * ⁠    /         \
+ * ⁠   6           7
+ * 输出: 8
+ * 解释: 最大值出现在树的第 4 层，宽度为 8 (6,null,null,null,null,null,null,7)。
+ * 
+ * 
+ * 注意: 答案在32位有符号整数的表示范围内。
+ * 
+ */
+
+// @lc code=start
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int widthOfBinaryTree(TreeNode root) {
+                // 生成FIFO队列
+                Queue<TreeNode> Q = new LinkedList<>();
+                // 如果结点不为空，那么加入到FIFO队列
+                if (root != null) {
+                    Q.offer(root);
+                }
+                // ans用于保存层次遍历的结果
+                List<List<Integer>> ans = new LinkedList<>();
+                // 开始利用FIFO队列进行层次遍历
+                while (Q.size() > 0) {
+                    // 取出当前层里面元素的个数
+                    final int qSize = Q.size();
+                    // 当前层的结果存放于tmp链表中
+                    List<Integer> tmp = new LinkedList<>();
+                    // 遍历当前层的每个结点
+                    for (int i = 0; i < qSize; i++) {
+                        // 当前层前面的结点先出队
+                        TreeNode cur = Q.poll();
+                        // 把结果存放当于当前层中
+                        tmp.add(cur.val);
+                        // 把下一层的结点入队，注意入队时需要非空才可以入队。
+                        if (cur.left != null) {
+                            Q.offer(cur.left);
+                        }
+                        if (cur.right != null) {
+                            Q.offer(cur.right);
+                        }
+                    }
+                    // 把当前层的结果放到返回值里面。
+                    ans.add(tmp);
+                }
+                return ans;
+    }
+}
+// @lc code=end
+

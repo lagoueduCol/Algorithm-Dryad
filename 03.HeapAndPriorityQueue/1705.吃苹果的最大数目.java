@@ -1,3 +1,5 @@
+import java.util.Queue;
+
 /*
  * @lc app=leetcode.cn id=1705 lang=java
  *
@@ -60,9 +62,59 @@
 
 // @lc code=start
 class Solution {
-    public int eatenApples(int[] apples, int[] days) {
+    class Node {
+        // 记录果子数目
+        public int num;
+        // 记录哪天会坏掉
+        public int bad;
 
+        public Node(int a, int b) {
+            num = a;
+            bad = b;
+        }
+    }
+
+    // A数组表示第i天要掉落的果子数
+    // B表示从掉落那天起，i + B[i]那天立马坏掉不能吃了。
+    public int eatenApples(int[] A, int[] B) {
+        final int N = A == null ? 0 : A.length;
+
+        // java小堆
+        Queue<Node> Q = new PriorityQueue<>((a, b) -> {
+            return a.bad - b.bad;
+        });
+
+        int ans = 0;
+        int i = 1;
+
+        while (i <= N || !Q.isEmpty()) {
+            // 第i天得到 num 个苹果
+            // 会在 bad 那天坏掉
+            if (i <= N) {
+                final int num = A[i - 1];
+                final int bad = i + B[i - 1];
+                if (num > 0) {
+                    Q.offer(new Node(num, bad));
+                }
+            }
+
+            // 把已经过期的都扔掉
+            while (!Q.isEmpty() && (Q.peek().bad <= i)) {
+                Q.poll();
+            }
+
+            if (!Q.isEmpty()) {
+                // 选出今天吃的
+                Node cur = Q.poll();
+                ans++;
+                if (--cur.num > 0) {
+                    Q.offer(cur);
+                }
+            }
+            i++;
+        }
+
+        return ans;
     }
 }
 // @lc code=end
-

@@ -53,12 +53,29 @@
 
 # @lc code=start
 class Solution(object):
-    def kClosest(self, points, K):
-        """
-        :type points: List[List[int]]
-        :type K: int
-        :rtype: List[List[int]]
-        """
+    def kClosest(self, A, K):
+        N = 0 if not A else len(A)
+
+        import heapq
+
+        def dist(t):
+            x = t[0] * t[0]
+            y = t[1] * t[1]
+            return x + y
+
+        Q = []
+
+        for i in range(N):
+            heapq.heappush(Q, [-dist(A[i]), i])
+            while len(Q) > K:
+                heapq.heappop(Q)
+
+        ans = []
+        while len(Q) != 0:
+            p = heapq.heappop(Q)
+            ans.append(A[p[1]])
+
+        return ans
         
 # @lc code=end
 

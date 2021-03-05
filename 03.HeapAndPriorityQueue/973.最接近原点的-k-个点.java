@@ -1,3 +1,5 @@
+import java.util.Queue;
+
 /*
  * @lc app=leetcode.cn id=973 lang=java
  *
@@ -53,9 +55,40 @@
 
 // @lc code=start
 class Solution {
-    public int[][] kClosest(int[][] points, int K) {
+    public int[][] kClosest(int[][] A, int K) {
+        final int N = A == null ? 0 : A.length;
 
+        // java大堆
+        Queue<Integer> Q = new PriorityQueue<>((a, b) -> {
+            long x1 = A[a][0], y1 = A[a][1];
+            long x2 = A[b][0], y2 = A[b][1];
+            long d1 = x1 * x1 + y1 * y1;
+            long d2 = x2 * x2 + y2 * y2;
+            if (d1 == d2) {
+                return 0;
+            }
+            // java 大堆的比较要反过来
+            return d1 > d2 ? -1 : 1;
+        });
+
+        for (int i = 0; i < N; i++) {
+            Q.offer(i);
+
+            while (Q.size() > K) {
+                Q.poll();
+            }
+        }
+
+        int[][] ans = new int[Q.size()][2];
+        int i = 0;
+        while (!Q.isEmpty()) {
+            final int idx = Q.peek();
+            ans[i][0] = A[idx][0];
+            ans[i][1] = A[idx][1];
+            Q.poll();
+            i++;
+        }
+        return ans;
     }
 }
 // @lc code=end
-

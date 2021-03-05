@@ -60,11 +60,33 @@
 
 # @lc code=start
 class Solution(object):
-    def eatenApples(self, apples, days):
-        """
-        :type apples: List[int]
-        :type days: List[int]
-        :rtype: int
-        """
+    def eatenApples(self, A, B):
+        N = 0 if not A else len(A)
+
+        import heapq
+
+        Q = []
+        i = 1
+        ans = 0
+        while i <= N or len(Q) > 0:
+            num = A[i-1] if i <= N else 0
+            bad = i + (B[i-1] if i <= N else 0)
+            if num > 0:
+                heapq.heappush(Q, [bad, num])
+            
+            while len(Q) > 0 and Q[0][0] <= i:
+                heapq.heappop(Q)
+            
+            if len(Q) > 0:
+                p = heapq.heappop(Q)
+                p[1] -= 1
+                ans += 1
+
+                if p[1] > 0:
+                    heapq.heappush(Q, p)
+            
+            i += 1
+        
+        return ans
 # @lc code=end
 

@@ -59,10 +59,58 @@
  */
 
 // @lc code=start
-class Solution {
-public:
-    int eatenApples(vector<int>& apples, vector<int>& days) {
 
+class Solution {
+   public:
+    int eatenApples(vector<int>& A, vector<int>& B) {
+        const int N = A.size();
+
+        auto cmp = [&](const pair<int, int>& a, const pair<int, int>& b) {
+            return a.first > b.first;
+        };
+        // 总是吃快要过期的苹果
+        // 在队列中记录两个信息
+        priority_queue<pair<int /*哪天过期*/, int /*还有多少个*/>,
+                       vector<pair<int, int>>, decltype(cmp)>
+            Q(cmp);
+
+        int ans = 0;
+        int i = 1;
+        while (true) {
+            // 第i天得到 num 个苹果
+            // 会在 bad 那天坏掉
+            if (i <= N) {
+                const int num = A[i - 1], bad = i + B[i - 1];
+                if (num > 0) {
+                    Q.push({bad, num});
+                }
+            }
+
+            // 把已经过期的都扔掉
+            // 把已经吃光的记录也扔掉
+            while (!Q.empty() && (Q.top().first <= i || Q.top().second <= 0)) {
+                Q.pop();
+            }
+
+            if (Q.empty()) {
+                // 后面再也没有苹果进来了
+                if (i >= N) {
+                    break;
+                }
+            } else {
+                // 选出今天吃的
+                auto cur = Q.top();
+                Q.pop();
+                ans++;
+                cur.second--;
+                if (cur.second > 0) {
+                    Q.push(cur);
+                }
+            }
+            i++;
+        }
+
+        return ans;
     }
 };
 // @lc code=end

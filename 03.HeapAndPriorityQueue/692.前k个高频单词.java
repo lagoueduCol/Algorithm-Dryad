@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collection;
+
 /*
  * @lc app=leetcode.cn id=692 lang=java
  *
@@ -58,10 +61,66 @@
  */
 
 // @lc code=start
-class Solution {
-    public List<String> topKFrequent(String[] words, int k) {
 
+class Counter extends HashMap<String, Integer> {
+    public int get(String k) {
+        return containsKey(k) ? super.get(k) : 0;
+    }
+
+    public void add(String k, int v) {
+        put(k, get(k) + v);
+        if (get(k) <= 0) {
+            remove(k);
+        }
     }
 }
-// @lc code=end
 
+class Solution {
+    class Node {
+        public String val;
+        public int cnt = 0;
+
+        public Node(String a, int b) {
+            val = a;
+            cnt = b;
+        }
+    }
+
+    public List<String> topKFrequent(String[] A, int k) {
+        final int N = A == null ? 0 : A.length;
+        if (k <= 0) {
+            return new ArrayList<>();
+        }
+
+        List<String> ans = new ArrayList<>();
+
+        Counter H = new Counter();
+
+        for (int i = 0; i < N; i++) {
+            H.add(A[i], 1);
+        }
+
+        Queue<Node> Q = new PriorityQueue<>((v1, v2) -> {
+            if (v1.cnt != v2.cnt)
+                return v1.cnt - v2.cnt;
+            return v2.val.compareTo(v1.val);
+        });
+
+        for (Map.Entry<String, Integer> e : H.entrySet()) {
+            Q.add(new Node(e.getKey(), e.getValue()));
+            while (Q.size() > k) {
+                Q.poll();
+            }
+        }
+
+        int i = 0;
+        while (!Q.isEmpty()) {
+            ans.add(Q.poll().val);
+        }
+
+        Collections.reverse(ans);
+        return ans;
+    }
+}
+
+// @lc code=end

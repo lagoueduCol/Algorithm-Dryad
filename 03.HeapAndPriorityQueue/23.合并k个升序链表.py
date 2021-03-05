@@ -66,11 +66,31 @@
 #     def __init__(self, val=0, next=None):
 #         self.val = val
 #         self.next = next
+
+import heapq
+
 class Solution(object):
-    def mergeKLists(self, lists):
-        """
-        :type lists: List[ListNode]
-        :rtype: ListNode
-        """
+    def mergeKLists(self, A):    
+        ListNode.__lt__ = lambda x, y: x.val < y.val    
+        N = 0 if not A else len(A)
+        heap = [x for x in A if x]
+
+        dummy = ListNode(None)
+        tail = dummy
+
+        # 构造小根堆
+        heapq.heapify(heap)
+
+        while heap:
+            # 把pop出的结果和当前的链表最后一个节点连起来
+            cur = heapq.heappop(heap)
+
+            tail.next = cur
+            tail = cur
+
+            if cur.next:
+                heapq.heappush(heap, cur.next)
+
+        return dummy.next
 # @lc code=end
 

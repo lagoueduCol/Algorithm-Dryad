@@ -1,3 +1,5 @@
+import jdk.tools.jlink.resources.plugins;
+
 /*
  * @lc app=leetcode.cn id=23 lang=java
  *
@@ -72,8 +74,33 @@
  * }
  */
 class Solution {
-    public ListNode mergeKLists(ListNode[] lists) {
+    public ListNode mergeKLists(ListNode[] A) {
+        final int N = A == null ? 0 : A.length;
 
+        Queue<ListNode> Q = new PriorityQueue<>((v1, v2) -> v1.val - v2.val);
+        for (int i = 0; i < N; i++) {
+            ListNode t = A[i];
+            if (t != null) {
+                Q.add(t);
+            }
+        }
+
+        ListNode dummy = new ListNode();
+        ListNode tail = dummy;
+
+        while (!Q.isEmpty()) {
+            ListNode cur = Q.poll();
+
+            tail.next = cur;
+            tail = cur;
+
+            if (cur.next != null) {
+                Q.add(cur.next);
+            }
+        }
+
+        tail.next = null;
+        return dummy.next;
     }
 }
 // @lc code=end

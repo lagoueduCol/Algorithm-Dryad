@@ -58,13 +58,34 @@
 #
 
 # @lc code=start
+
+import heapq
 class Solution(object):
-    def topKFrequent(self, words, k):
-        """
-        :type words: List[str]
-        :type k: int
-        :rtype: List[str]
-        """
+    def topKFrequent(self, A, k):
+        N = 0 if not A else len(A)
+
+        if k <= 0 or N <= 0:
+            return []
+        
+        H = {}
+        for x in A:
+            old = H.get(x, 0)
+            H[x] = old + 1
+        
+        heap = []
+        for key,value in H.items():
+            heapq.heappush(heap, (value,key))
+            while len(heap) > k:
+                heapq.heappop(heap)
+        
+        ans = []
+        while len(heap) > 0:
+            p = heapq.heappop(heap)
+            ans.append(p[1])
+        
+        ans.reverse()
+
+        return ans
         
 # @lc code=end
 

@@ -1,15 +1,16 @@
 /*
+ * @lc app=leetcode.cn id=871 lang=cpp
  *
  * [871] 最低加油次数
  *
  * https://leetcode-cn.com/problems/minimum-number-of-refueling-stops/description/
  *
  * algorithms
- * Hard (31.35%)
- * Likes:    104
+ * Hard (31.92%)
+ * Likes:    134
  * Dislikes: 0
- * Total Accepted:    5.2K
- * Total Submissions: 16.7K
+ * Total Accepted:    6.4K
+ * Total Submissions: 20K
  * Testcase Example:  '1\n1\n[]'
  *
  * 汽车从起点出发驶向目的地，该目的地位于出发位置东面 target 英里处。
@@ -71,39 +72,7 @@
  *
  */
 
-#include <assert.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <algorithm>
-#include <iostream>
-#include <numeric>
-#include <queue>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right)
-        : val(x), left(left), right(right) {}
-};
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
+// @lc code=start
 
 class Solution {
    public:
@@ -155,8 +124,7 @@ class Solution {
 
             // 把这个加油站的油放到队列中
             // 但是并不代表加到车里面了，只是作为备用油存到队列里面。
-            if (curStationGas > 0)
-                Q.push(curStationGas);
+            if (curStationGas > 0) Q.push(curStationGas);
 
             // 过了这个站
             i++;
@@ -168,9 +136,4 @@ class Solution {
     }
 };
 
-int main(void) {
-    Solution s;
-    vector<vector<int>> A{{10, 60}, {20, 30}, {30, 30}, {60, 40}};
-    std::cout << s.minRefuelStops(100, 10, A) << std::endl;
-    return 0;
-}
+// @lc code=end

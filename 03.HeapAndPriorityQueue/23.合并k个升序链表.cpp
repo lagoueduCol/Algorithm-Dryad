@@ -74,7 +74,28 @@
 class Solution {
 public:
     ListNode* mergeKLists(vector<ListNode*>& lists) {
+        struct tmp {
+            bool operator()(const ListNode *x, const ListNode *y) const {
+                return x->val > y->val;
+            }
+        };
+        priority_queue<ListNode*, vector<ListNode*>, struct tmp> Q;
+        for (auto &l: lists) {
+            if (l) Q.push(l);
+        }
 
+        ListNode dummy(0), *tail = &dummy;
+        while (!Q.empty()) {
+            auto p = Q.top();
+            Q.pop();
+            tail->next = p;
+            tail = p;
+            if (p->next) {
+                Q.push(p->next);
+            }
+        }
+        tail->next = nullptr;
+        return dummy.next;
     }
 };
 // @lc code=end

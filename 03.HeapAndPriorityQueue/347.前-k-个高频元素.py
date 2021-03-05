@@ -42,12 +42,15 @@
 #
 
 # @lc code=start
+import heapq
 class Solution(object):
-    def topKFrequent(self, nums, k):
-        """
-        :type nums: List[int]
-        :type k: int
-        :rtype: List[int]
-        """
+    def topKFrequent(self, A, k):
+        count = collections.Counter(A)
+        # 注意这里是小堆
+        #  python原本是大堆，这里取负变成小堆
+        heap = [(-freq, word) for word, freq in count.items()]
+        heapq.heapify(heap)
+        return [heapq.heappop(heap)[1] for _ in xrange(k)]
+
 # @lc code=end
 

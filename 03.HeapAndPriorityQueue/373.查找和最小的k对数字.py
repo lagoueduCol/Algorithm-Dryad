@@ -45,14 +45,33 @@
 #
 
 # @lc code=start
-class Solution(object):
-    def kSmallestPairs(self, nums1, nums2, k):
-        """
-        :type nums1: List[int]
-        :type nums2: List[int]
-        :type k: int
-        :rtype: List[List[int]]
-        """
-        
-# @lc code=end
+import heapq
 
+class Solution(object):
+    def kSmallestPairs(self, A, B, k):
+        if not A or not B or k <= 0:
+            return []
+        
+        N = 0 if not A else len(A)
+        M = 0 if not B else len(B)
+
+        Q = []
+        for i in range(N):
+            Q.append([A[i] + B[0], i, 0])
+        
+        heapq.heapify(Q)
+        ans = []
+
+        i = 0
+        while i < k and len(Q) > 0:
+            i += 1
+
+            p = heapq.heappop(Q)
+            ans.append([A[p[1]], B[p[2]]])
+
+            if p[2] + 1 < M:
+                heapq.heappush(Q, [A[p[1]] + B[p[2]+1], p[1], p[2] + 1])
+        
+        return ans
+
+    

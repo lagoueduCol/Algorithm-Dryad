@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Queue;
+
 /*
  * @lc app=leetcode.cn id=373 lang=java
  *
@@ -44,11 +48,53 @@
  * 
  */
 
-// @lc code=start
-class Solution {
-    public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+/**
+ * 可以将这个题看成是一个k个有序数组合并全的问题。 假设A = [1, 2, 3]. B = [4,5,6]
+ *
+ * 那么可以认为生成了数组
+ *
+ * [(1,4), (1,5), (1, 6)] [(2,4), (2,5), (2,6)] [(3,4), (3,5), (3,6)]
+ *
+ */
 
+// @lc code=start
+import java.util.List;
+
+class Solution {
+    class Node {
+        public int i;
+        public int j;
+
+        public Node(int a, int b) {
+            i = a;
+            j = b;
+        }
+    }
+
+    public List<List<Integer>> kSmallestPairs(int[] A, int[] B, int k) {
+        if (A == null || B == null || A.length == 0 || B.length == 0 || k <= 0) {
+            return new ArrayList<>();
+        }
+        final int N = A.length;
+        final int M = B.length;
+
+        // java小堆
+        Queue<Node> Q = new PriorityQueue<>((v1, v2) -> A[v1.i] + B[v1.j] - A[v2.i] - B[v2.j]);
+
+        for (int i = 0; i < N; i++) {
+            Q.add(new Node(i, 0));
+        }
+
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < k && !Q.isEmpty(); i++) {
+            Node p = Q.poll();
+            ans.add(Arrays.asList(A[p.i], B[p.j]));
+            if (p.j + 1 < M) {
+                Q.add(new Node(p.i, p.j + 1));
+            }
+        }
+
+        return ans;
     }
 }
 // @lc code=end
-

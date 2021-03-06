@@ -62,10 +62,61 @@
 #         self.val = val
 #         self.next = next
 class Solution(object):
+    def split(self, head):
+        odd = ListNode()
+        even = ListNode()
+
+        odd_tail = odd
+        even_tail = even
+
+        p = head
+
+        idx = 1 
+        while p:
+            back = p.next
+
+            if idx % 2 == 1:
+                odd_tail.next = p
+                odd_tail = odd_tail.next
+            else:
+                even_tail.next = p
+                even_tail = even_tail.next
+
+            p = back
+            idx += 1
+
+        odd_tail.next = None
+        even_tail.next = None
+
+        return odd.next, even.next
+    
+    # 注意，这里在合并的时候，是先出even里面结点
+    def merge(self, odd, even):
+        isEven = True
+        dummy = ListNode()
+        tail = dummy
+
+        while odd or even:
+            if (not odd) or (isEven and even):
+                tail.next = even
+                even = even.next
+            else:
+                tail.next = odd
+                odd = odd.next
+            tail = tail.next
+            isEven = not isEven
+
+        tail.next = None
+
+        return dummy.next
+
     def swapPairs(self, head):
         """
         :type head: ListNode
         :rtype: ListNode
         """
+        odd, even = self.split(head)
+        return self.merge(odd, even)
+
 # @lc code=end
 

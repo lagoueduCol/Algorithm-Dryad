@@ -57,19 +57,59 @@
 
 // @lc code=start
 /**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
+ * Definition for singly-linked list. public class ListNode { int val; ListNode
+ * next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val,
+ * ListNode next) { this.val = val; this.next = next; } }
  */
 class Solution {
-    public ListNode swapPairs(ListNode head) {
+    private ListNode merge(ListNode odd, ListNode even) {
+        boolean isEven = true;
+        ListNode dummy = new ListNode();
+        ListNode tail = dummy;
 
+        while (odd != null || even != null) {
+            if (odd == null || isEven && even != null) {
+                tail.next = even;
+                even = even.next;
+            } else {
+                tail.next = odd;
+                odd = odd.next;
+            }
+            tail = tail.next;
+            isEven = !isEven;
+        }
+        tail.next = null;
+
+        return dummy.next;
+    }
+
+    public ListNode swapPairs(ListNode head) {
+        ListNode odd = new ListNode();
+        ListNode even = new ListNode();
+
+        ListNode odd_tail = odd;
+        ListNode even_tail = even;
+
+        // split the list into 2 parts.
+        int idx = 1;
+        ListNode p = head;
+        while (p != null) {
+            ListNode back = p.next;
+
+            if ((idx & 0x01) == 1) {
+                odd_tail.next = p;
+                odd_tail = p;
+            } else {
+                even_tail.next = p;
+                even_tail = p;
+            }
+
+            p = back;
+            idx++;
+        }
+        odd_tail.next = even_tail.next = null;
+
+        return merge(odd.next, even.next);
     }
 }
 // @lc code=end
-

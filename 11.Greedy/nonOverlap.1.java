@@ -1,4 +1,4 @@
-public int eraseOverlapIntervals(int[][] A) {
+public int nonOverlapIntervals(int[][] A) {
   final int N = A == null ? 0 : A.length;
 
   Arrays.sort(A, new Comparator<int[]>() {

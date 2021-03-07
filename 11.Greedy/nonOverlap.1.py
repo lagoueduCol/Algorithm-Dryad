@@ -1,4 +1,4 @@
-def eraseOverlapIntervals(self, A):
+def nonOverlapIntervals(self, A):
     if not A or len(A) == 0:
         return 0
 

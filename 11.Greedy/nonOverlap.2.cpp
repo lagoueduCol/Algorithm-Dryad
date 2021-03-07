@@ -1,4 +1,4 @@
-int eraseOverlapIntervals(vector<vector<int>> &A) {
+int nonOverlapIntervals(vector<vector<int>> &A) {
   const int N = A.size();
 
   sort(A.begin(), A.end());

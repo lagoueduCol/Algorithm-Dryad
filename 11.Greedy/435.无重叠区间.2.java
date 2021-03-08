@@ -64,7 +64,9 @@ class Solution {
     int ans = 0;
 
     Arrays.sort(A, new Comparator<int[]>() {
-      public int compare(int[] a, int[] b) { return a[0] - b[0]; }
+      public int compare(int[] a, int[] b) {
+        return a[0] == b[0] ? 0 : (a[0] < b[0] ? -1 : 1);
+      }
     });
 
     for (int i = N - 1; i >= 0; i--) {

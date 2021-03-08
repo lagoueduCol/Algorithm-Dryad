@@ -12,7 +12,7 @@ int nonOverlapIntervals(vector<vector<int>> &A) {
     const int end = A[i][1];
     if (preEnd <= start) {
       ans++;
-      preEnd = max(preEnd, end);
+      preEnd = end;
     }
   }
 

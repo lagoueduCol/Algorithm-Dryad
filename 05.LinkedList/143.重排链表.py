@@ -40,6 +40,6 @@ class Solution(object):
         :type head: ListNode
         :rtype: None Do not return anything, modify head in-place instead.
         """
-        
+
 # @lc code=end
 

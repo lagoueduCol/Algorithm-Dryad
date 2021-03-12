@@ -60,11 +60,33 @@
 #         self.val = val
 #         self.next = next
 class Solution(object):
-    def removeNthFromEnd(self, head, n):
-        """
-        :type head: ListNode
-        :type n: int
-        :rtype: ListNode
-        """
+    def removeNthFromEnd(self, head, k):
+        # 将链表改造成带假头的链表
+        dummy = ListNode()
+        dummy.next = head
+
+        # 链表长度
+        preWalkedSteps = 0
+        # front指针从dummy开始先走k步
+        front = dummy
+        # 注意front不能为空，需要指向链表的最后一个结点
+        while (preWalkedSteps < k and front != None and front.next != None):
+            front = front.next
+            preWalkedSteps += 1
+
+        # back指针指向dummy，然后front与back指针一起走
+        back = dummy
+        # 注意front不能为空，需要指向链表的最后一个结点
+        while (front != None and front.next != None):
+            back = back.next
+            front = front.next
+
+        # 如果preWalkedSteps == k
+        # 说明处于情况2和情况3，需要删除倒数第k个结点
+        if (preWalkedSteps == k):
+            back.next = back.next.next
+
+        # 返回新的链表头
+        return dummy.next
 # @lc code=end
 

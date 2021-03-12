@@ -72,19 +72,80 @@
 
 // @lc code=start
 /**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
+ * Definition for singly-linked list. public class ListNode { int val; ListNode
+ * next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val,
+ * ListNode next) { this.val = val; this.next = next; } }
  */
 class Solution {
-    public ListNode reverseKGroup(ListNode head, int k) {
 
+    private ListNode tmp = new ListNode();
+    private ListNode tmpTail = tmp;
+    private int len = 0;
+
+    private ListNode ans = new ListNode();
+    private ListNode ansTail = ans;
+
+    private ListNode reverse(ListNode head) {
+        ListNode dummy = new ListNode();
+
+        ListNode p = head;
+        while (p != null) {
+            ListNode back = p.next;
+
+            p.next = dummy.next;
+            dummy.next = p;
+
+            p = back;
+        }
+
+        return dummy.next;
+    }
+
+    private void append(ListNode p, int k) {
+        // 将进来的结点添加到tmp链表中
+        // 如果tmp链表中的结点个数 == k
+        // 那么就需要把tmp 链表进行反转，然后再加入到ans链表中
+        tmpTail.next = p;
+        tmpTail = tmpTail.next;
+        len++;
+
+        if (len == k) {
+            // 如果长为k，那么就需要进行一下翻转。
+            // 这里记录下翻转之后的
+            ListNode tail = tmp.next;
+            ListNode head = reverse(tmp.next);
+
+            // 反转后的链表是[head, tail]
+            // 那么需要将这个链表添加到[ans, ansTail]里面
+            ansTail.next = head;
+            ansTail = tail;
+
+            // 然后再把tmp链表清空
+            len = 0;
+            tmp.next = null;
+            tmpTail = tmp;
+        }
+    }
+
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode p = head;
+        while (p != null) {
+            ListNode back = p.next;
+
+            p.next = null;
+            append(p, k);
+
+            p = back;
+        }
+
+        if (len > 0) {
+            ansTail.next = tmp.next;
+            ansTail = tmpTail;
+        }
+
+        ansTail.next = null;
+
+        return ans.next;
     }
 }
 // @lc code=end
-

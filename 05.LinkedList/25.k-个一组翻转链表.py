@@ -77,11 +77,61 @@
 #         self.val = val
 #         self.next = next
 class Solution(object):
+    def reverse(self, head):
+        dummy = ListNode()
+
+        p = head
+        while p:
+            back = p.next
+            
+            p.next = dummy.next
+            dummy.next = p
+
+            p = back
+
+        return dummy.next
+
     def reverseKGroup(self, head, k):
-        """
-        :type head: ListNode
-        :type k: int
-        :rtype: ListNode
-        """
+        tmp = ListNode()
+        tmp_tail = tmp
+        len = 0
+
+        ans = ListNode()
+        ans_tail = ans
+
+        p = head
+
+        while p:
+            back = p.next
+            p.next = None
+
+            # 将p节点添加到tmp链表中
+            tmp_tail.next = p
+            tmp_tail = p
+            len += 1
+
+            # 如果tmp链表长度为k
+            if len == k:
+                # 需要将tmp链表进行反转
+                tail = tmp.next
+                head = self.reverse(tmp.next)
+
+                ans_tail.next = head
+                ans_tail = tail
+
+                len = 0
+                tmp.next = None
+                tmp_tail = tmp
+
+            p = back
+
+
+        if len > 0:
+            ans_tail.next = tmp.next
+            ans_tail = tmp_tail
+    
+        return ans.next
+
+
 # @lc code=end
 

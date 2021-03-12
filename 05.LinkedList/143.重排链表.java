@@ -94,7 +94,6 @@ class Solution {
             isFront = !isFront;
         }
         tail.next = null;
-
     }
 }
 // @lc code=end

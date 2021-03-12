@@ -35,11 +35,56 @@
 #         self.val = val
 #         self.next = next
 class Solution(object):
+    def reverse(self, head):
+        dummy = ListNode()
+        p = head
+        while p:
+            back = p.next
+            p.next = dummy.next
+            dummy.next = p
+            p = back
+        return dummy.next
+
+    def split(self, head):
+        pre = head
+        s1 = head
+        s2 = head
+
+        while s2 and s2.next:
+            pre = s1
+            s1 = s1.next
+            s2 = s2.next.next
+        
+        return s1 if s2 else pre
+
     def reorderList(self, head):
-        """
-        :type head: ListNode
-        :rtype: None Do not return anything, modify head in-place instead.
-        """
+        if not head or not head.next:
+            return
+        
+        mid = self.split(head)
+        front = head
+        back = mid.next
+        mid.next = None
+
+        back = self.reverse(back)
+
+
+        dummy = ListNode()
+        tail = dummy
+
+        is_front = True
+        while front or back:
+            if not back or is_front and front:
+                tail.next = front
+                tail = tail.next
+                front = front.next
+            else:
+                tail.next = back
+                tail = tail.next
+                back = back.next
+            is_front = not is_front
+
+        tail.next = None
 
 # @lc code=end
 

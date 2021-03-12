@@ -72,20 +72,37 @@
 
 // @lc code=start
 /**
- * Definition for singly-linked list.
- * class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) {
- *         val = x;
- *         next = null;
- *     }
- * }
+ * Definition for singly-linked list. class ListNode { int val; ListNode next;
+ * ListNode(int x) { val = x; next = null; } }
  */
 public class Solution {
     public ListNode detectCycle(ListNode head) {
-        
+        if (head == null || head.next == null) {
+            return null;
+        }
+
+        ListNode s1 = head;
+        ListNode s2 = head;
+
+        while (s2 != null && s2.next != null) {
+            s1 = s1.next;
+            s2 = s2.next.next;
+            if (s1 == s2) {
+                break;
+            }
+        }
+
+        if (s1 != s2) {
+            return null;
+        }
+
+        s2 = head;
+        while (s1 != s2) {
+            s1 = s1.next;
+            s2 = s2.next;
+        }
+
+        return s1;
     }
 }
 // @lc code=end
-

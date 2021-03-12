@@ -30,19 +30,71 @@
 
 // @lc code=start
 /**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
+ * Definition for singly-linked list. public class ListNode { int val; ListNode
+ * next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val,
+ * ListNode next) { this.val = val; this.next = next; } }
  */
 class Solution {
+    private ListNode split(ListNode head) {
+        ListNode pre = head;
+        ListNode s1 = head;
+        ListNode s2 = head;
+
+        while (s2 != null && s2.next != null) {
+            pre = s1;
+            s1 = s1.next;
+            s2 = s2.next.next;
+        }
+
+        return s2 != null ? s1 : pre;
+    }
+
+    private ListNode reverse(ListNode head) {
+        ListNode dummy = new ListNode();
+        ListNode p = head;
+
+        while (p != null) {
+            ListNode back = p.next;
+
+            p.next = dummy.next;
+            dummy.next = p;
+
+            p = back;
+        }
+
+        return dummy.next;
+    }
+
     public void reorderList(ListNode head) {
-        
+        if (head == null || head.next == null) {
+            return;
+        }
+
+        ListNode mid = split(head);
+        ListNode front = head;
+        ListNode back = mid.next;
+        mid.next = null;
+
+        back = reverse(back);
+
+        boolean isFront = true;
+        ListNode dummy = new ListNode();
+        ListNode tail = dummy;
+
+        while (front != null || back != null) {
+            if (back == null || isFront && front != null) {
+                tail.next = front;
+                tail = tail.next;
+                front = front.next;
+            } else {
+                tail.next = back;
+                tail = tail.next;
+                back = back.next;
+            }
+            isFront = !isFront;
+        }
+        tail.next = null;
+
     }
 }
 // @lc code=end
-

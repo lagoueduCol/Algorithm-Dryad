@@ -59,7 +59,6 @@ class Solution {
         }
 
         return ans + ((i < N - 1) ? 1 : 0);
-
     }
 }
 // @lc code=end

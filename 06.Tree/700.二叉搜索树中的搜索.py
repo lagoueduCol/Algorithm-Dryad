@@ -1,4 +1,5 @@
 #
+# @lc app=leetcode.cn id=700 lang=python
 #
 # [700] 二叉搜索树中的搜索
 #
@@ -40,6 +41,7 @@
 # 
 #
 
+# @lc code=start
 # Definition for a binary tree node.
 # class TreeNode(object):
 #     def __init__(self, val=0, left=None, right=None):
@@ -48,17 +50,13 @@
 #         self.right = right
 class Solution(object):
     def searchBST(self, root, val):
-        """
-        :type root: TreeNode
-        :type val: int
-        :rtype: TreeNode
-        """
         while root:
             if root.val == val:
                 return root
-            elif val < root.val:
-                root = root.left
-            else:
+            elif root.val < val:
                 root = root.right
+            else:
+                root = root.left
         return None
+# @lc code=end
 

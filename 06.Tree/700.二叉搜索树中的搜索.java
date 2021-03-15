@@ -1,4 +1,7 @@
+import javax.swing.tree.TreeNode;
+
 /*
+ * @lc app=leetcode.cn id=700 lang=java
  *
  * [700] 二叉搜索树中的搜索
  *
@@ -40,6 +43,7 @@
  * 
  */
 
+// @lc code=start
 /**
  * Definition for a binary tree node.
  * public class TreeNode {
@@ -57,17 +61,20 @@
  */
 class Solution {
     public TreeNode searchBST(TreeNode root, int val) {
-        TreeNode p = root;
-        while (p != null) {
-            if (p.val == val) {
-                return p;
-            } else if (val < p.left) {
-                p = p.left;
+        TreeNode ans = null;
+
+        while (root != null) {
+            if (root.val == val) {
+                return root;
+            } else if (root.val < val) {
+                root = root.right;
             } else {
-                p = p.right;
+                root = root.left;
             }
         }
+
         return null;
     }
 }
+// @lc code=end
 

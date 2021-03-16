@@ -68,6 +68,7 @@ class Solution {
     class Edge {
         public int to;
         public int cost;
+
         public Edge(int a, int b) {
             to = a;
             cost = b;
@@ -96,13 +97,16 @@ class Solution {
             ans[i] = INF;
         }
 
-        Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> v1 - v2);
+        Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> {
+            return ans[v1] - ans[v2];
+        });
+
         Q.add(k);
         ans[k] = 0;
 
         while (!Q.isEmpty()) {
             int cur = Q.poll();
-            for (Edge e: G.get(cur)) {
+            for (Edge e : G.get(cur)) {
                 final int next = e.to, cost = e.cost;
                 final int transCost = ans[cur] + cost;
                 if (transCost < ans[next]) {
@@ -114,11 +118,10 @@ class Solution {
 
         int maxValue = -1;
         for (int i = 1; i <= N; i++) {
-            maxValue =  Math.max(maxValue, ans[i]);
+            maxValue = Math.max(maxValue, ans[i]);
         }
 
         return maxValue == INF ? -1 : maxValue;
     }
 }
 // @lc code=end
-

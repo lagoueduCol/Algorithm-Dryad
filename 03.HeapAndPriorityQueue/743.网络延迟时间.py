@@ -63,8 +63,15 @@
 
 # @lc code=start
 
-import Queue
-from Queue import PriorityQueue
+import heapq
+
+import heapq
+# 构建
+# heapq.heapify(heap)
+# pop
+# cur = heapq.heappop(heap)
+# push
+# heapq.heappush(heap, cur.next)
 
 class Solution(object):
     def networkDelayTime(self, times, N, k):
@@ -77,10 +84,14 @@ class Solution(object):
 
         INF = 2147483647
         ans = [INF] * (N + 1)
+        # ans用来记录每个点的时延
         ans[k] = 0
 
-        Q = PriorityQueue()
-        Q.put(k)
+        Q = []
+        # 注意队列中比较的时候，是以最小时延为key来比较的
+        # 所以ans[k]放在前面
+        Q.append([ans[k], k])
+        heapq.heapify(Q)
         
         # G表示Graph
         G = []
@@ -90,15 +101,17 @@ class Solution(object):
         for e in times:
             G[e[0]].append([e[1], e[2]])
 
-        while Q.qsize() > 0:
-            cur = Q.get()
+        while len(Q) > 0:
+            curRec = heapq.heappop(Q)
+            cur = curRec[1]
+
             for p in G[cur]:
                 next = p[0]
                 cost = p[1]
                 if cost + ans[cur] < ans[next]:
                     ans[next] = cost + ans[cur]
-                    Q.put(next)
-        
+                    heapq.heappush(Q, [ans[next], next])
+
         maxValue = -1
         for i in range(1, N+1):
             maxValue = max(maxValue, ans[i])

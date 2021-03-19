@@ -33,3 +33,51 @@ void Union(int x, int y) {
 }
 
 int Size(int i) { return Cnt[Find(i)]; }
+
+static void rev2(int[] A, int i) {
+    final int N = A == null ? 0 : A.length;
+
+    // 不能再递归下去
+    if (i > N) {
+        return;
+    }
+
+    // print array
+    System.out.print("A[] = {");
+    for (int j = 0; j < i; j++) {
+        System.out.print(A[j] + ", ");
+    }
+    System.out.println("}");
+
+    // 打印后面的
+    rev2(A, i + 1);
+}
+
+static void rev3(int[] A, int i, Strange s) {
+    final int N = A == null ? 0 : A.length;
+    s.print();
+
+    if (i >= N) {
+        return;
+    }
+
+    s.push(A[i]);
+    rev3(A, i + 1, s);
+}
+
+void rev4(int[] A, int i, Strange s) {
+    final int N = A == null ? 0 : A.length;
+    s.print();
+
+    Strange t = s.clone();
+
+    if (i >= N) {
+        return;
+    }
+
+    s.push(A[i]);
+    rev3(A, i + 1, s);
+    s.pop();
+
+    assert isSame(s, t);
+}

@@ -99,6 +99,8 @@ class Solution {
   }
 
   private int Find(int x) {
+    // b用来记录起始位置
+    // 因为在后面x的值会发生改变
     int b = x;
     // base用来保存从x -> .... root
     // 这条路径上所有的乘积

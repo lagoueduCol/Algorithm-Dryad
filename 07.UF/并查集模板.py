@@ -7,7 +7,7 @@ class UF(object):
             self.Cnt[i] = 1
 
         self.count = N
-    
+
     def Find(self, x):
         if x == self.F[x]:
             return x
@@ -21,9 +21,10 @@ class UF(object):
             self.F[xpar] = ypar
             self.Cnt[ypar] += self.Cnt[xpar]
             self.count -= 1
-    
+
     def Size(self, i):
         return self.Cnt[self.Find(i)]
-    
+
     def Count(self):
         return self.count
+

@@ -99,124 +99,131 @@ using namespace std;
 
 // @lc code=start
 
-class Solution {
-    // 一开始初始化并查集
-    // a->b这个关系记录在F里面
-    // a/b的值记录在C里面。
-    unordered_map<string, double> C;
-    unordered_map<string, string> F;
-    string Find(string x) {
-        auto b = x;
-        double base = 1;
-        while (F[x] != x) {
-            base *= C[x];
-            x = F[x];
-        }
-        // 这里x就是root
-        // base x -> root的映射值
-        // 把路径上的其他值一并压缩
-        auto root = x;
-        while (F[b] != root) {
-            // 修改值上的变化
-            auto next = base / C[b];
-            C[b] = base;
-            base = next;
+class Solution
+{
+  // 一开始初始化并查集
+  // a->b这个关系记录在F里面
+  // a/b的值记录在C里面。
+  unordered_map<string, double> C;
+  unordered_map<string, string> F;
+  string Find(string x)
+  {
+    auto b = x;
+    double base = 1;
+    while (F[x] != x) {
+      base *= C[x];
+      x = F[x];
+    }
+    // 这里x就是root
+    // base x -> root的映射值
+    // 把路径上的其他值一并压缩
+    auto root = x;
+    while (F[b] != root) {
+      // 修改值上的变化
+      auto next = base / C[b];
+      C[b] = base;
+      base = next;
 
-            auto par = F[b];
-            F[b] = root;
-            b = par;
-        }
-        return root;
+      auto par = F[b];
+      F[b] = root;
+      b = par;
+    }
+    return root;
+  }
+
+  // T / D = V;
+  void Union(string T, string D, double v)
+  {
+    if (F[T] == T) {
+      // 如果T就是一个根结点
+      // 那么这里让T指向d parent
+      auto par = Find(D);
+      F[T] = par;
+      C[T] = v * C[D];
+    } else {
+      // 那么找到T的root
+      auto tpar = Find(T);
+      // T = C[T] * par
+      auto dpar = Find(D);
+      // D = C[D] * dpar;
+
+      // T = v * D = v * C[D] * dpar = C[T] * tpar;
+      // 如果我们要让tpar 指向dpar
+      // tpar = v * C[D] * dpar / C[T]
+      F[tpar] = dpar;
+      C[tpar] = v * C[D] / C[T];
+    }
+  }
+
+public:
+  vector<double> calcEquation(vector<vector<string>>& E,
+                              vector<double>& V,
+                              vector<vector<string>>& Q)
+  {
+    const int N = E.size();
+    F.clear();
+    C.clear();
+    // 把每个公式化简
+    // 主要是需要换两种方向来进行添加
+    // 如果一个点已经有父结点了
+    // 那么就要换个方向加进去
+    for (auto& e : E) {
+      auto& T = e[0];
+      auto& D = e[1];
+
+      F[T] = T;
+      C[T] = 1;
+      F[D] = D;
+      C[D] = 1;
     }
 
-    // T / D = V;
-    void Union(string T, string D, double v) {
-        if (F[T] == T) {
-            // 如果T就是一个根结点
-            // 那么这里让T指向d parent
-            auto par = Find(D);
-            F[T] = par;
-            C[T] = v * C[D];
-        } else {
-            // 那么找到T的root
-            auto tpar = Find(T);
-            // T = C[T] * par
-            auto dpar = Find(D);
-            // D = C[D] * dpar;
-
-            // T = v * D = v * C[D] * dpar = C[T] * tpar;
-            // 如果我们要让tpar 指向dpar
-            // tpar = v * C[D] * dpar / C[T]
-            F[tpar] = dpar;
-            C[tpar] = v * C[D] / C[T];
-        }
+    // 然后看怎么把边加到集合中去
+    for (int i = 0; i < N; i++) {
+      auto& e = E[i];
+      auto &T = e[0], D = e[1];
+      Union(T, D, V[i]);
     }
 
-   public:
-    vector<double> calcEquation(vector<vector<string>> &E, vector<double> &V,
-                                vector<vector<string>> &Q) {
-        const int N = E.size();
-        F.clear();
-        C.clear();
-        // 把每个公式化简
-        // 主要是需要换两种方向来进行添加
-        // 如果一个点已经有父结点了
-        // 那么就要换个方向加进去
-        for (auto &e : E) {
-            auto &T = e[0];
-            auto &D = e[1];
-            simple(T, D);
+    // 然后再看查询
+    vector<double> ans;
+    for (auto& q : Q) {
+      auto T = q[0];
+      auto D = q[1];
 
-            F[T] = T;
-            C[T] = 1;
-            F[D] = D;
-            C[D] = 1;
-        }
+      if (T == D && F.count(D)) {
+        ans.push_back(1);
+        continue;
+      }
 
-        // 然后看怎么把边加到集合中去
-        for (int i = 0; i < N; i++) {
-            auto &e = E[i];
-            auto &T = e[0], D = e[1];
-            Union(T, D, V[i]);
-        }
+      if (!F.count(T) || !F.count(D)) {
+        ans.push_back(-1.0);
+        continue;
+      }
 
-        // 然后再看查询
-        vector<double> ans;
-        for (auto &q : Q) {
-            auto T = q[0];
-            auto D = q[1];
+      auto tpar = Find(T);
+      auto dpar = Find(D);
 
-            if (T == D && F.count(D)) {
-                ans.push_back(1);
-                continue;
-            }
-
-            if (!F.count(T) || !F.count(D)) {
-                ans.push_back(-1.0);
-                continue;
-            }
-
-            auto tpar = Find(T);
-            auto dpar = Find(D);
-
-            if (tpar != dpar) {
-                ans.push_back(-1);
-            } else {
-                ans.push_back(C[T] / C[D]);
-            }
-        }
-        return ans;
+      if (tpar != dpar) {
+        ans.push_back(-1);
+      } else {
+        ans.push_back(C[T] / C[D]);
+      }
     }
+    return ans;
+  }
 };
 
 // @lc code=end
 
-int main(void) {
-    vector<vector<string>> E{{"a", "b"}, {"b", "c"}};
-    vector<double> V{2.0, 3.0};
-    vector<vector<string>> Q{
-        {"a", "c"}, {"b", "a"}, {"a", "e"}, {"a", "a"}, {"x", "x"}};
-    Solution s;
-    s.calcEquation(E, V, Q);
-    return 0;
+int
+main(void)
+{
+  vector<vector<string>> E{ { "a", "b" }, { "b", "c" } };
+  vector<double> V{ 2.0, 3.0 };
+  vector<vector<string>> Q{
+    { "a", "c" }, { "b", "a" }, { "a", "e" }, { "a", "a" }, { "x", "x" }
+  };
+  Solution s;
+  s.calcEquation(E, V, Q);
+  return 0;
 }

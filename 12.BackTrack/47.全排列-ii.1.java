@@ -58,13 +58,15 @@ class Solution
     }
   }
 
-  private void swap(int[] box, int i, int j) {
-      int t = box[i];
-      box[i] = box[j];
-      box[j] = t;
+  private void swap(int[] box, int i, int j)
+  {
+    int t = box[i];
+    box[i] = box[j];
+    box[j] = t;
   }
 
-  private boolean find(int[] box, int start, int end, int val) {
+  private boolean find(int[] box, int start, int end, int val)
+  {
     for (int i = start; i < end; i++) {
       if (box[i] == val) {
         return true;
@@ -73,9 +75,7 @@ class Solution
     return false;
   }
 
-  private void backtrace(int[] box,
-                         int start,
-                         List<List<Integer>> ans)
+  private void backtrace(int[] box, int start, List<List<Integer>> ans)
   {
     final int N = box == null ? 0 : box.length;
     // box中只有[0, ..., N)几个空位置
@@ -98,15 +98,16 @@ class Solution
     }
   }
 
-  public List<List<Integer>> permuteUnique(int[] A) {
-      List<Integer> box = new ArrayList<>();
-      List<List<Integer>> ans = new ArrayList<>();
-      final int N = A == null ? 0 : A.length;
-      if (N == 0) {
-          return ans;
-      }
-      backtrace(A/*box*/, 0, ans);
+  public List<List<Integer>> permuteUnique(int[] A)
+  {
+    List<Integer> box = new ArrayList<>();
+    List<List<Integer>> ans = new ArrayList<>();
+    final int N = A == null ? 0 : A.length;
+    if (N == 0) {
       return ans;
+    }
+    backtrace(A /*box*/, 0, ans);
+    return ans;
   }
 }
 // @lc code=end

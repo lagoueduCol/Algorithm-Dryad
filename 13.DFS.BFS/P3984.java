@@ -34,7 +34,7 @@ class Solution {
    * @param c
    * @param tmp   走到r,c的路径
    */
-  public void dfs(int[][] A, boolean[][] vis, int r, int c, List<Node> tmp) {
+  public void dfs(int[][] A, int[][] step, boolean[][] vis, int r, int c, List<Node> tmp) {
     // 如果越界
     final int R = A.length;
     final int C = A[0].length;
@@ -46,6 +46,18 @@ class Solution {
       }
       return;
     }
+
+    // 剪枝1
+    if (shortPath != null && tmp.size() >= shortPath.size()) return;
+  
+    // 剪枝2
+    // 如果发现走到step[r][c]比以前用了更多的步数，那么直接返回
+    if (tmp.size() - 1 > step[r][c]) {
+      return;
+    }
+
+    step[r][c] = tmp.size() - 1;
+
 
     // 接下来看当前出发点的四个选择
     for (int d = 0; d < 4; d++) {
@@ -66,7 +78,7 @@ class Solution {
       vis[nr][nc] = true;
       tmp.add(new Node(nr, nc));
 
-      dfs(A, vis, nr, nc, tmp);
+      dfs(A, step, vis, nr, nc, tmp);
 
       vis[nr][nc] = false;
       tmp.remove(tmp.size()-1);
@@ -88,6 +100,15 @@ class Solution {
     final int C = A[0].length;
 
     boolean[][] vis = new boolean[R][C];
+    int[][] step = new int[R][C];
+
+    // 记录每个点的从出发点走的最小的步数，一开始为 R * C
+    for (int r = 0; r < R; r++) {
+      for (int c = 0; c < C; c++) {
+        step[r][c] = R * C + 1;
+      }
+    }
+
     // 路径最长为遍历所有的点
     List<Node> tmp = new ArrayList<Node>();
 
@@ -95,7 +116,7 @@ class Solution {
     tmp.add(new Node(0, 0));
     vis[0][0] = true;
 
-    dfs(A, vis, 0, 0, tmp);
+    dfs(A, step, vis, 0, 0, tmp);
 
     tmp.remove(tmp.size() - 1);
     vis[0][0] = false;

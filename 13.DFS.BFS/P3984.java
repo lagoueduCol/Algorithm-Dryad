@@ -58,7 +58,6 @@ class Solution {
 
     step[r][c] = tmp.size() - 1;
 
-
     // 接下来看当前出发点的四个选择
     for (int d = 0; d < 4; d++) {
       final int nr = r + dir[d][0];

@@ -52,74 +52,55 @@
 using namespace std;
 
 // @lc code=start
+
 class Solution {
-  unordered_map<int, vector<vector<string>>> H;
-
-  vector<vector<bool>> ok;
-  // 将s字符串的[start, N)切分成为回文字符串
-  // 返回所有可能的切分方法
-
-  vector<vector<string>> dfs(string s, int start) {
+  void backtrace(string &s, vector<vector<bool>> &dp, int start,
+                 vector<string> &box, vector<vector<string>> &ans) {
     const int N = s.length();
-    // 如果已经是空字符串了，那么肯定是没有解了
-    if (start >= N) {
-      return {};
-    }
-    // 如果只有一个字符，那么解集里面肯定只有1个
-    if (start + 1 == N) {
-      return {{s.substr(start)}};
+    // 当前人的选择空间为[start, N)
+    // 当start == N的时候，已经没有任何选择范围了。
+    if (start == N) {
+      ans.push_back(box);
+      return;
     }
 
-    auto iter = H.find(start);
-    if (iter != H.end()) {
-      return iter->second;
-    }
-
-    vector<vector<string>> ans;
-    // 看一下后面的切分位置
-    for (int cut = start; cut < N; cut++) {
-      // 切分成为两部分[start, cut] [cut + 1, N)
-      if (ok[start][cut]) {
-        string word = s.substr(start, cut - start + 1);
-        auto next = dfs(s, cut + 1);
-        for (auto &n : next) {
-          n.insert(n.begin(), word);
-          ans.push_back(n);
-        }
-
-        if (cut == N - 1) {
-          ans.emplace_back();
-          ans.back().push_back(word);
-        }
+    // 第i个人切子串的范围
+    for (int cut = start; cut < s.length(); cut++) {
+      if (dp[start][cut]) {
+        box.push_back(s.substr(start, cut - start + 1));
+        // 下一个人可以切分的字符串[cut + 1, N)
+        backtrace(s, dp, cut + 1, box, ans);
+        box.pop_back();
       }
     }
+  }
 
-    return H[start] = ans;
+  void build(string &s, vector<vector<bool>> &dp) {
+    const int N = s.length();
+    dp.resize(s.length(), vector<bool>(N));
+    // 初始化dp
+    // 当子串长度为1
+    for (int i = 0; i < N; i++) dp[i][i] = true;
+    // 当子串长度为2
+    for (int i = 0; i + 1 < N; i++) dp[i][i + 1] = s[i] == s[i + 1];
+    // 其他长度的子串
+    for (int len = 2; len < N; len++)
+      for (int i = 0; i < N - len; i++)
+        dp[i][i + len] = s[i] == s[i + len] && dp[i + 1][i + len - 1];
   }
 
  public:
-  vector<vector<string>> partition(string s) {
+  vector<vector<string>> partition(string &s) {
     const int N = s.length();
-    ok.resize(N, vector<bool>(N, false));
+    vector<vector<bool>> dp;
+    build(s, dp);
 
-    auto isok = [&](const int i, const int j) {
-      int l = i, r = j;
-      while (l < r) {
-        if (s[l] != s[r]) return false;
-        l++;
-        r--;
-      }
-      return true;
-    };
+    vector<string> box;
+    vector<vector<string>> ans;
 
-    for (int i = 0; i < N; i++) {
-      ok[i][i] = true;
-      for (int j = i + 1; j < N; j++) {
-        ok[i][j] = isok(i, j);
-      }
-    }
-
-    return dfs(s, 0);
+    backtrace(s, dp, 0, box, ans);
+    return ans;
   }
 };
+
 // @lc code=end

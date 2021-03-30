@@ -36,33 +36,31 @@
  *
  */
 
-#include <bits/stdc++.h>
-
 // @lc code=start
 class Solution {
-   public:
-    int numSubarrayProductLessThanK(vector<int>& A, int k) {
-        const int N = A.size();
+ public:
+  int numSubarrayProductLessThanK(vector<int>& A, int k) {
+    const int N = A.size();
 
-        int left = -1;
-        uint64_t s = 1;
-        int ans = 0;
-        for (int i = 0; i < N; i++) {
-            const uint64_t x = A[i];
-            s *= x;
+    int left = -1;
+    uint64_t s = 1;
+    int ans = 0;
+    for (int i = 0; i < N; i++) {
+      const uint64_t x = A[i];
+      s *= x;
 
-            // 坏了才移动
-            while (s >= k && left < i) {
-                s /= A[++left];
-            }
+      // 坏了才移动
+      while (s >= k && left < i) {
+        s /= A[++left];
+      }
 
-            // 计算子数组的长度
-            const int len = i - left;
-            // 那么以x 为右端点的区间的个数就是
-            ans += len;
-        }
-
-        return ans;
+      // 计算子数组的长度
+      const int len = i - left;
+      // 那么以x 为右端点的区间的个数就是
+      ans += len;
     }
+
+    return ans;
+  }
 };
 // @lc code=end

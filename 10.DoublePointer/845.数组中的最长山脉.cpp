@@ -54,80 +54,78 @@
  *
  */
 
-#include <bits/stdc++.h>
-
 // @lc code=start
 class Solution {
-   public:
-    int longestMountain(vector<int>& A) {
-        const int N = A.size();
-        if (N < 3) {
-            return 0;
-        }
-
-        int left = -1;
-        // -1表示只有一个元素
-        // 0表示正上升
-        // 1表示正下降
-        int status = -1;
-        int preValue = A[0];
-        int ans = 0;
-
-        // 题目要求必须至少有3个元素，所以不可能从0开始
-        for (int i = 1; i < N; i++) {
-            auto x = A[i];
-
-            // 如果要把x加进来
-            // 如果里面还只有一个元素
-            if (status == -1) {
-                if (x > preValue) {
-                    // 那么状态改为上升
-                    status = 0;
-                } else {
-                    // 如果相等，或者变小，那么区间只能再变成只有一个元素的了
-                    // 状态依然更新为只有一个元素
-                    status = -1;
-                    // 区间更新为(left, i]
-                    left = i - 1;
-                }
-            }
-            // 如果正在上升
-            else if (0 == status) {
-                if (x > preValue) {
-                    // nothing
-                } else if (x == preValue) {
-                    // 如果相等，那么区间只能再变成只有一个元素的状态了
-                    status = -1;
-                    left = i - 1;
-                } else {
-                    // 下降了
-                    status = 1;
-                }
-            }
-            // 如果正在下降
-            else {
-                if (x < preValue) {
-                    // nothing
-                } else if (x == preValue) {
-                    status = -1;
-                    left = i - 1;
-                } else {
-                    // 如果正在上升
-                    status = 0;
-                    // 注意这里left要变成
-                    // (i - 2, i]
-                    // 这里已经有两个元素了
-                    left = i - 2;
-                }
-            }
-
-            preValue = x;
-            if (status == 1) {
-                ans = max(ans, i - left);
-            }
-        }
-
-        return ans >= 3 ? ans : 0;
+ public:
+  int longestMountain(vector<int>& A) {
+    const int N = A.size();
+    if (N < 3) {
+      return 0;
     }
+
+    int left = -1;
+    // -1表示只有一个元素
+    // 0表示正上升
+    // 1表示正下降
+    int status = -1;
+    int preValue = A[0];
+    int ans = 0;
+
+    // 题目要求必须至少有3个元素，所以不可能从0开始
+    for (int i = 1; i < N; i++) {
+      auto x = A[i];
+
+      // 如果要把x加进来
+      // 如果里面还只有一个元素
+      if (status == -1) {
+        if (x > preValue) {
+          // 那么状态改为上升
+          status = 0;
+        } else {
+          // 如果相等，或者变小，那么区间只能再变成只有一个元素的了
+          // 状态依然更新为只有一个元素
+          status = -1;
+          // 区间更新为(left, i]
+          left = i - 1;
+        }
+      }
+      // 如果正在上升
+      else if (0 == status) {
+        if (x > preValue) {
+          // nothing
+        } else if (x == preValue) {
+          // 如果相等，那么区间只能再变成只有一个元素的状态了
+          status = -1;
+          left = i - 1;
+        } else {
+          // 下降了
+          status = 1;
+        }
+      }
+      // 如果正在下降
+      else {
+        if (x < preValue) {
+          // nothing
+        } else if (x == preValue) {
+          status = -1;
+          left = i - 1;
+        } else {
+          // 如果正在上升
+          status = 0;
+          // 注意这里left要变成
+          // (i - 2, i]
+          // 这里已经有两个元素了
+          left = i - 2;
+        }
+      }
+
+      preValue = x;
+      if (status == 1) {
+        ans = max(ans, i - left);
+      }
+    }
+
+    return ans >= 3 ? ans : 0;
+  }
 };
 // @lc code=end

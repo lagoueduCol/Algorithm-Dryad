@@ -72,39 +72,37 @@
  *
  */
 
-#include <bits/stdc++.h>
-
 // @lc code=start
 class Solution {
-   public:
-    int totalFruit(vector<int>& A) {
-        // 记录每种数字的个数
-        unordered_map<int, int> H;
+ public:
+  int totalFruit(vector<int>& A) {
+    // 记录每种数字的个数
+    unordered_map<int, int> H;
 
-        const int N = A.size();
-        int left = -1;
-        int ans = 0;
+    const int N = A.size();
+    int left = -1;
+    int ans = 0;
 
-        for (int i = 0; i < N; i++) {
-            auto x = A[i];
-            H[x]++;
+    for (int i = 0; i < N; i++) {
+      auto x = A[i];
+      H[x]++;
 
-            // 如果当前x进来，如果进来之后，种类超过了2种
-            // 那么就需要移动左指针
-            while (H.size() > 2) {
-                // 移动左指针，并且改变区间的状态
-                const int old = A[++left];
-                H[old]--;
-                if (H[old] == 0) {
-                    H.erase(old);
-                }
-            }
-
-            // 到这里，区间肯定已经满足状态了。
-            ans = max(ans, i - left);
+      // 如果当前x进来，如果进来之后，种类超过了2种
+      // 那么就需要移动左指针
+      while (H.size() > 2) {
+        // 移动左指针，并且改变区间的状态
+        const int old = A[++left];
+        H[old]--;
+        if (H[old] == 0) {
+          H.erase(old);
         }
+      }
 
-        return ans;
+      // 到这里，区间肯定已经满足状态了。
+      ans = max(ans, i - left);
     }
+
+    return ans;
+  }
 };
 // @lc code=end

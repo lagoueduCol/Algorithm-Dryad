@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 测试平台 : https://www.acwing.com/problem/content/2/
+# 测试平台 : https://www.acwing.com/problem/content/3/
 
 # your code here
 class Solution:
@@ -11,12 +11,12 @@ class Solution:
     # 可以认为一开始的点集为S0 = {0/*占用的空间*/, 0/*收益*/}
     # 也就是dp[0] = 0
     # 但是这里不需要去设置，省略!
-    ans = 0
 
+    ans = 0
     for i in range(N):
       # 我们遍历旧有的点集
       # 注意遍历的方向
-      for space in range(V, v[i]-1, -1):
+      for space in range(v[i], V + 1):
         oldSpace = space - v[i]
         newSpace = space
 

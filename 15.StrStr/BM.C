@@ -37,7 +37,8 @@ int move_by_suffix_prefix(int j, int n, int suffix[], char prefix[]) {
     if (suffix[len] != -1) { return j - suffix[len] + 1; }
 
     // 这里也可以从r = j + 1开始。但是如果j+1是有效的。那么
-    // 前面的suffix[]就会处理掉。所以这里没有必要再看j + 1
+    // 前面的suffix[len] != -1就会处理掉。
+    // 所以这里没有必要再看j + 1
     // 直接找到一个可以匹配的后缀子串与前缀子串匹配的位置就可以了。
     for (r = j + 2; r <= n - 1; r++) {
         if (prefix[n - r]) { return r; }
@@ -68,7 +69,8 @@ int strStr(char *s, char *t) {
         if (j < 0) { return i; }
         int x = j - bad[s[i + j]];
         int y = 0;
-        // 这里在第一个字符就匹配失败的时候，是不能使用好后缀匹配的。
+        // 这里在t的右边最后一个字符就匹配失败的时候，是不能使用好后缀匹配的。
+        // 可以认为此时没有任何好后缀!
         // 否则在匹配mississippi, issi的时候，会移动4步。得不到正确的结果
         if (j < tlen - 1) {
             y = move_by_suffix_prefix(j, tlen, suffix, prefix);

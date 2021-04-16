@@ -40,35 +40,47 @@
 
 // @lc code=start
 class Solution {
-    // 在学习PMT的
+    // 构建PMT
     private int[] buildPMT(String sub) {
         final int N = sub == null ? 0 : sub.length();
 
-        int[] next = new int[N + 1];
         int[] PMT = new int[N];
-        int i = 0;
-        int j = -1;
 
-        next[0] = -1;
+        int i = 1;
+        int j = 0;
+
+        PMT[0] = 0;
 
         while (i < N) {
-            if (j == -1 || sub.charAt(i) == sub.charAt(j)) {
+            if (sub.charAt(i) == sub.charAt(j)) {
+                // 当相等的时候，
                 i++;
                 j++;
-                next[i] = j;
+                PMT[i-1] = j;
             } else {
-                j = next[j];
+                if (0 == j) {
+                    // 如果匹配失败，并且j已经为0
+                    // 那么
+                    i++;
+                    PMT[i-1] = 0;
+                } else {
+                    j = PMT[j-1];
+                }
             }
-        }
-
-        for (i = 1; i <= N; i++) {
-            PMT[i-1] = next[i];
         }
 
         return PMT;
     }
 
     public int strStr(String main, String sub) {
+        if (sub == null || sub.length() == 0) {
+            return 0;
+        }
+
+        if (main == null || main.length() == 0) {
+            return -1;
+        }
+
         int i = 0;
         int j = 0;
 

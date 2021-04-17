@@ -49,7 +49,22 @@
 class Solution {
 public:
     vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
 
+        const int N = intervals.size();
+
+        vector<vector<int>> ans;
+
+        for (auto &r: intervals) {
+            const int L = r[0], R = r[1];
+            if (ans.empty() || ans.back()[1] < L) {
+                ans.push_back(r);
+            } else {
+                ans.back()[1] = max(ans.back()[1], R);
+            }
+        }
+
+        return ans;
     }
 };
 // @lc code=end

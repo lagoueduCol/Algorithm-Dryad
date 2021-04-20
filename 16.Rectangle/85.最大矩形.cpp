@@ -68,11 +68,40 @@
  */
 
 // @lc code=start
-class Solution {
-public:
-    int maximalRectangle(vector<vector<char>>& matrix) {
 
+class Solution {
+    int64_t compute(vector<int>& a) {
+        const int n = a.size();
+        stack<int> s;
+        int64_t ans = 0;
+        for (int i = 0; i < n; i++) {
+            while (!s.empty() && a[i] <= a[s.top()]) {
+                const int64_t h = a[s.top()];
+                s.pop();
+                const int64_t base = s.empty() ? -1 : s.top();
+                const int64_t area = h * (i - base - 1);
+                ans = max(ans, area);
+            }
+            s.push(i);
+        }
+        return ans;
+    }
+
+   public:
+    int maximalRectangle(vector<vector<char>>& a) {
+        if (!a.size() || !a[0].size()) return 0;
+        const int rows = a.size();
+        const int cols = a[0].size();
+        vector<int> sum(cols + 1, 0);
+        int64_t ans = 0;
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; c++)
+                sum[c] = a[r][c] == '1' ? sum[c] + 1 : 0;
+            ans = max(ans, compute(sum));
+        }
+        return ans;
     }
 };
+
 // @lc code=end
 

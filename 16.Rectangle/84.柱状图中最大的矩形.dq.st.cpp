@@ -38,6 +38,26 @@
  * 
  */
 
+
+#include <assert.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <algorithm>
+#include <iostream>
+#include <numeric>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+
 // @lc code=start
 class Solution {
     int log2(int x) {
@@ -54,7 +74,7 @@ class Solution {
         //      [start=i, len=2^0]
         //      也就是st[i][len=2^0]
         for (int i = 0; i < N; i++) {
-            st[i][0] = A[i];
+            st[i][0] = i;
         }
 
         // 递推：
@@ -66,36 +86,76 @@ class Solution {
             // last = i + (1<<j)
             // 根据左闭右开原则，last是可以取到n的。这点要注意。
             for (int i = 0; (i + (1 << j)) <= N; i++) {
-                st[i][j] = min(st[i][j - 1],
-                               st[i + (1 << (j - 1))][j - 1]);
+                int left_range_min_index = st[i][j-1];
+                int right_range_min_index = st[i+(1<<(j-1))][j-1];
+                if (A[left_range_min_index] < A[right_range_min_index]) {
+                    st[i][j] = left_range_min_index;
+                } else {
+                    st[i][j] = right_range_min_index;
+                }
             }
         }
     }
 
-    int queryST(vector<vector<int>> &st, int l, int r) {
+    int queryST(vector<vector<int>> &st, vector<int> &A, int l, int r) {
         // 这里我们将区间[l, r]分为两个区间
         // [l, l+log2(len)] => [l, len=log2(len)]
         // [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
         int len = r - l + 1;
         int j = log2(len);
-        return min(st[l][j], st[r - (1 << j) + 1][j]);
+        int left_range_min_index = st[l][j];
+        int right_range_min_index = st[r - (1 << j) + 1][j];
+        if (A[left_range_min_index] < A[right_range_min_index]) {
+            return left_range_min_index;
+        }
+        return right_range_min_index;
+    }
+
+
+    // 这里得到一个区域里面的最大矩形面积
+    // 这个区间域为[b, e)
+    // 注意e是取不到的
+    int getRangeMaxArea(vector<int> &A, vector<vector<int>> &st, int b, int e) {
+        // 如果为空区间
+        if (b >= e) {
+            return 0;
+        }
+
+        // 如果区间中只有一个元素
+        if (b + 1 == e) {
+            return A[b];
+        }
+
+        // 如果有多个元素。那么找到范围里面的最小值
+        // 如果有多个最小值，那么我们就找离中心最近的那个，尽量把区域进行等分
+        int minIndex = queryST(st, A, b, e-1);
+
+        // 在使用 最小值 情况下的面积
+        int useMinIndexArea = A[minIndex] * (e - b);
+
+        // 不用 minIndex 那么就会把区间分为两部分
+        int leftMaxArea = getRangeMaxArea(A, st, b, minIndex);
+        int rightMaxArea = getRangeMaxArea(A, st, minIndex + 1, e);
+
+        return max(useMinIndexArea, max(leftMaxArea, rightMaxArea));
     }
 
 public:
     int largestRectangleArea(vector<int>& A) {
         const int N = A.size();
-        int ans = 0;
-
         vector<vector<int>> st(N, vector<int>(log2(N)+1));
         buildST(A, st);
 
-        for (int i = 0; i < N; i++) {
-            for (int j = i; j < N; j++) {
-                ans = max(ans, queryST(st, i, j) * (j - i + 1));
-            }
-        }
-        return ans;
+        return getRangeMaxArea(A, st, 0, N);
     }
 };
 // @lc code=end
 
+
+
+int main(void) {
+    Solution s;
+    vector<int> A{2,1,5,6,2,3};
+    s.largestRectangleArea(A);
+    return 0;
+}

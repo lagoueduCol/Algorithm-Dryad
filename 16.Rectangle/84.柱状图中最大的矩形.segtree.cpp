@@ -39,46 +39,102 @@
  */
 
 // @lc code=start
+
+/**
+ *  注意：线段树中所有的区间都是两边闭合的。[b, e]表示[b]， [e]都可以访问。
+ */
+
 class Solution {
-    int log2(int x) {
-        return 31 - __builtin_clz((unsigned int)x);
+    // 表示线段树的数组treeArray[]
+    // 数组里面的值表示区间里面的最小值
+    vector<int> treeArray;
+
+    int leftNodePos(int rootPos) {
+        return (rootPos << 1) + 1;
     }
 
-    void buildST(vector<int>& A, vector<vector<int>> &st) {
-        const int N = A.size();
-        // 第一步：
-        //    - 处理长度为1的区间
-        //      即[i, i + 1)
-        //
-        // 区间的表示：
-        //      [start=i, len=2^0]
-        //      也就是st[i][len=2^0]
-        for (int i = 0; i < N; i++) {
-            st[i][0] = A[i];
-        }
+    int rightNodePos(int rootPos) {
+        return (rootPos << 1) + 2;
+    }
 
-        // 递推：
-        //      依次处理2 ^ j长度。
-        //      其中2 ^ j = 2 ^ (j-1) + 2 ^ (j-1)
-        //      注意：这里的长度都是完整的2 ^ j的
-        for (int j = 1; (1 << j) <= N; j++) {
-            // 这里要处理的区间[i, i + (1<<j)]
-            // last = i + (1<<j)
-            // 根据左闭右开原则，last是可以取到n的。这点要注意。
-            for (int i = 0; (i + (1 << j)) <= N; i++) {
-                st[i][j] = min(st[i][j - 1],
-                               st[i + (1 << (j - 1))][j - 1]);
-            }
+    // treeArray[rootPos] 将会记录数组[start, end]
+    // 这个区间上的信息。在本题中，信息为区间上的最小值
+    void buildTree(int rootPos, vector<int> &A, int start, int end) {
+        // 范围为空
+        if (start > end)
+            return;
+        // 如果区间：只有一个数
+        if (start == end) {
+            treeArray[rootPos] = A[start];
+        } else {
+            // 否则需要将区间分为两半
+            const int mid = start + ((end - start) >> 1);
+            buildTree(leftNodePos(rootPos), A, start, mid);
+            buildTree(rightNodePos(rootPos), A, mid + 1, end);
+            // 构建成功之后，需要利用左子树的信息和右子树的信息来
+            // 来更新 [start, end] rootNode 的信息
+            treeArray[rootPos] =
+                min(treeArray[leftNodePos(rootPos)], treeArray[rightNodePos(rootPos)]);
         }
     }
 
-    int queryST(vector<vector<int>> &st, int l, int r) {
-        // 这里我们将区间[l, r]分为两个区间
-        // [l, l+log2(len)] => [l, len=log2(len)]
-        // [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
-        int len = r - l + 1;
-        int j = log2(len);
-        return min(st[l][j], st[r - (1 << j) + 1][j]);
+    /**
+     * 查询区间[queryStart, queryEnd]这个区间上的最小值信息
+     *
+     * treeArray[rootPos]表示区间 [start, end]上的最小值。
+     * 可以把前面的三个参数看成
+     * class TreeNode {
+     *      int val;        <-- arg: treeArray[rootPos];
+     *      int rangeStart; <-- arg: start
+     *      int rangeEnd:   <-- arg: end
+     *      TreeNode left;  <-- leftNodePos(rootPos);
+     *      TreeNode right: <-- rightNodePos(rootPos);
+     * }
+     */
+    int queryTree(int rootPos, int start, int end, int queryStart, int queryEnd) {
+        // 无效区间，反回最大值
+        if (start > end || queryStart > queryEnd) {
+            return INT_MAX;
+        }
+        // 原则1： 包含于查询区间内部
+        if (queryStart <= start && end <= queryEnd) {
+            return treeArray[rootPos];
+        }
+        // 原则2：不相交时，放弃区间信息，这里我们返回最大值
+        if (end < queryStart || queryEnd < start) {
+            return INT_MAX;
+        }
+        // 原则3：当相交的时候，需要将[start, end]进行拆分
+        // 由于我们建树的时候，都是平分，所以这里将区间也进行平分
+        const int mid = start + ((end - start) >> 1);
+        return min(queryTree(leftNodePos(rootPos), start, mid, queryStart, queryEnd),
+            queryTree(rightNodePos(rootPos), mid + 1, end, queryStart, queryEnd));
+    }
+
+    // 当我们要更新数组中A[inx] = value的时候
+    // 线段树中存储的区间的信息，也是需要更新的
+    // 当然，这个函数在这里并没有使用到。
+    void updateTree(int rootPos, int start, int end, int idx, int value) {
+        // 如果树中的结点不在我们的更新路径上
+        if (start > end || idx < start || idx > end) {
+            return;
+        }
+        // 如果已经找到了叶子结点
+        if (start == idx && idx == end) {
+            treeArray[rootPos] = value;
+            return;
+        }
+        // 这里后序遍历
+        // 如果是非叶子结点，那么
+        // 先更新左右子结点，再更新根结点
+        const int mid = start + ((end - start) >> 1);
+        // 更新左子树
+        updateTree(leftNodePos(rootPos), start, mid, idx, value);
+        // 更新右子树
+        updateTree(rightNodePos(rootPos), mid + 1, end, idx, value);
+        // 更新根结点
+        treeArray[rootPos] =
+            min(treeArray[leftNodePos(rootPos)], treeArray[rightNodePos(rootPos)]);
     }
 
 public:
@@ -86,12 +142,15 @@ public:
         const int N = A.size();
         int ans = 0;
 
-        vector<vector<int>> st(N, vector<int>(log2(N)+1));
-        buildST(A, st);
+        treeArray.resize(N << 2);
+        buildTree(0, A, 0, N - 1);
 
         for (int i = 0; i < N; i++) {
             for (int j = i; j < N; j++) {
-                ans = max(ans, queryST(st, i, j) * (j - i + 1));
+                // rootPos = 0表示根结点
+                // [0, N-1]表示根结点代表：[0, N-1]这个区间上的最小值信息
+                // [i, j]是我们的查询区间
+                ans = max(ans, queryTree(0/*rootPos*/, 0, N - 1, i, j) * (j - i + 1));
             }
         }
         return ans;

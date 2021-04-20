@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # @lc app=leetcode.cn id=84 lang=python
 #
@@ -40,70 +41,109 @@
 
 # @lc code=start
 class Solution(object):
-    def log2(self, N):
-        k = 0
-        while ((1<<(k+1)) <= N):
-            k += 1
-        return k
+    def __init__(self):
+        # 表示线段树的数组self.treeArray[]
+        # 数组里面的值表示区间里面的最小值
+        self.treeArray = None
+        self.INT_MAX = 2147483647
 
-    def buildRow(self, Col):
-        ret = []
-        for x in range(Col):
-            ret.append(0)
-        return ret
+    def leftNodePos(self, rootPos):
+        return (rootPos << 1) + 1
 
-    def buildMatrix(self, Row, Col):
-        ret = []
-        for r in range(Row):
-            ret.append(self.buildRow(Col))
-        return ret
+    def rightNodePos(self, rootPos):
+        return (rootPos << 1) + 2
 
-    def buildST(self, A, st):
-        N = 0 if not A else len(A)
+    # self.treeArray[rootPos] 将会记录数组[start, end]
+    # 这个区间上的信息。在本题中，信息为区间上的最小值
+    def buildTree(self, rootPos, A, start, end):
+        # 范围为空
+        if (start > end):
+            return
+        # 如果区间：只有一个数
+        if (start == end):
+            self.treeArray[rootPos] = A[start]
+        else:
+            # 否则需要将区间分为两半
+            mid = start + ((end - start) >> 1)
+            self.buildTree(self.leftNodePos(rootPos), A, start, mid)
+            self.buildTree(self.rightNodePos(rootPos), A, mid + 1, end)
 
-        # 第一步：
-        #    - 处理长度为1的区间
-        #      即[i, i + 1)
-        #
-        # 区间的表示：
-        #      [start=i, len=2^0]
-        #      也就是st[i][len=2^0]
-        for i in range(N):
-            st[i][0] = A[i]
+            # 构建成功之后，需要利用左子树的信息和右子树的信息来
+            # 来更新 [start, end] rootNode 的信息
+            self.treeArray[rootPos] = \
+                min(self.treeArray[self.leftNodePos(rootPos)],
+                    self.treeArray[self.rightNodePos(rootPos)])
 
-        # 递推：
-        #      依次处理2 ^ j长度。
-        #      其中2 ^ j = 2 ^ (j-1) + 2 ^ (j-1)
-        #      注意：这里的长度都是完整的2 ^ j
-        j = 1
-        while ((1<<j) <= N):
-            # 这里要处理的区间[i, i + (1<<j)]
-            # last = i + (1<<j)
-            # 根据左闭右开原则，last是可以取到n的。这点要注意。
-            i = 0
-            while ((i + (1<<j)) <= N):
-                st[i][j] = min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1])
-                i += 1
-            j += 1
+    """
+     * 查询区间[queryStart, queryEnd]这个区间上的最小值信息
+     * self.treeArray[rootPos]表示区间 [start, end]上的最小值。
+     * 可以把前面的三个参数看成
+     * class TreeNode {
+     *      val        <-- arg: self.treeArray[rootPos]
+     *      rangeStart <-- arg: start
+     *      rangeEnd:   <-- arg: end
+     *      TreeNode left  <-- leftNodePos(rootPos)
+     *      TreeNode right: <-- rightNodePos(rootPos)
+     * 
+    """
+    def queryTree(self, rootPos, start, end, queryStart, queryEnd):
+        # 无效区间，反回最大值
+        if (start > end or queryStart > queryEnd):
+            return self.INT_MAX
+        
+        # 原则1： 包含于查询区间内部
+        if (queryStart <= start and end <= queryEnd):
+            return self.treeArray[rootPos]
+        
+        # 原则2：不相交时，放弃区间信息，这里我们返回最大值
+        if (end < queryStart or queryEnd < start):
+            return self.INT_MAX
+        
+        # 原则3：当相交的时候，需要将[start, end]进行拆分
+        # 由于我们建树的时候，都是平分，所以这里将区间也进行平分
+        mid = start + ((end - start) >> 1)
+        return min(self.queryTree(self.leftNodePos(rootPos),
+                            start, mid, queryStart, queryEnd),
+                   self.queryTree(self.rightNodePos(rootPos),
+                            mid + 1, end, queryStart, queryEnd))
 
-    def queryST(self, st, l, r):
-        # 这里我们将区间[l, r]分为两个区间
-        # [l, l+log2(len)] => [l, len=log2(len)]
-        # [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
-        p = self.log2(r - l + 1)
-        return min(st[l][p], st[r - (1 << p) + 1][p])
-
+    # 当我们要更新数组中A[inx] = value的时候
+    # 线段树中存储的区间的信息，也是需要更新的
+    # 当然，这个函数在这里并没有使用到。
+    def updateTree(self, rootPos, start, end, idx, value):
+        # 如果树中的结点不在我们的更新路径上
+        if (start > end or idx < start or idx > end):
+            return
+        
+        # 如果已经找到了叶子结点
+        if (start == idx and idx == end):
+            self.treeArray[rootPos] = value
+            return
+        
+        # 这里后序遍历
+        # 如果是非叶子结点，那么
+        # 先更新左右子结点，再更新根结点
+        mid = start + ((end - start) >> 1)
+        # 更新左子树
+        self.updateTree(self.leftNodePos(rootPos), start, mid, idx, value)
+        # 更新右子树
+        self.updateTree(self.rightNodePos(rootPos), mid + 1, end, idx, value)
+        # 更新根结点
+        self.treeArray[rootPos] = \
+            min(self.treeArray[self.leftNodePos(rootPos)],
+                self.treeArray[self.rightNodePos(rootPos)])
+    
     def largestRectangleArea(self, A):
         N = 0 if not A else len(A)
 
-        st = self.buildMatrix(N, self.log2(N) + 1)
-        self.buildST(A, st)
+        self.treeArray = [0] * (N<<2)
+        self.buildTree(0, A, 0, N-1)
 
         ans = 0
 
         for i in range(N):
             for j in range(i, N):
-                ans = max(ans, self.queryST(st, i, j) * (j - i + 1))
+                ans = max(ans, self.queryTree(0, 0, N - 1, i, j) * (j - i + 1))
 
         return ans
 # @lc code=end

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # @lc app=leetcode.cn id=84 lang=python
 #
@@ -69,7 +70,7 @@ class Solution(object):
         #      [start=i, len=2^0]
         #      也就是st[i][len=2^0]
         for i in range(N):
-            st[i][0] = A[i]
+            st[i][0] = i
 
         # 递推：
         #      依次处理2 ^ j长度。
@@ -82,29 +83,59 @@ class Solution(object):
             # 根据左闭右开原则，last是可以取到n的。这点要注意。
             i = 0
             while ((i + (1<<j)) <= N):
-                st[i][j] = min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1])
+                left_range_min_index = st[i][j - 1]
+                right_range_min_index = st[i + (1 << (j - 1))][j - 1]
+                if (A[left_range_min_index] < A[right_range_min_index]):
+                    st[i][j] = left_range_min_index
+                else:
+                    st[i][j] = right_range_min_index
                 i += 1
             j += 1
 
-    def queryST(self, st, l, r):
+    # 注意区间[l, r]双闭
+    def queryST(self, st, A, l, r):
         # 这里我们将区间[l, r]分为两个区间
         # [l, l+log2(len)] => [l, len=log2(len)]
         # [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
         p = self.log2(r - l + 1)
-        return min(st[l][p], st[r - (1 << p) + 1][p])
+        left_range_min_index = st[l][p]
+        right_range_min_index = st[r-(1<<p) + 1][p]
+        if A[left_range_min_index] < A[right_range_min_index]:
+            return left_range_min_index
+        return right_range_min_index
+
+    # 这里得到一个区域里面的最大矩形面积
+    # 这个区间域为[b, e)
+    # 注意e是取不到的
+    def getRangeMaxArea(self, A, st, b, e):
+        # 如果为空区间
+        if b >= e:
+            return 0
+
+        # 如果区间中只有一个元素
+        if b + 1 == e:
+            return A[b]
+
+        minIndex = self.queryST(st, A, b, e-1)
+
+        # 在使用 最小值 情况下的面积
+        useMinIndexArea = A[minIndex] * (e - b)
+
+        # 不用 minIndex 那么就会把区间分为两部分
+        leftMaxArea = self.getRangeMaxArea(A, st, b, minIndex)
+        rightMaxArea = self.getRangeMaxArea(A, st, minIndex + 1, e)
+
+        return max(useMinIndexArea, max(leftMaxArea, rightMaxArea))
 
     def largestRectangleArea(self, A):
         N = 0 if not A else len(A)
 
         st = self.buildMatrix(N, self.log2(N) + 1)
         self.buildST(A, st)
-
-        ans = 0
-
-        for i in range(N):
-            for j in range(i, N):
-                ans = max(ans, self.queryST(st, i, j) * (j - i + 1))
-
-        return ans
+        return self.getRangeMaxArea(A, st, 0, N)
 # @lc code=end
 
+
+s = Solution()
+A = [2,1,5,6,2,3]
+s.largestRectangleArea(A)

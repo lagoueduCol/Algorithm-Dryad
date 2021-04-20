@@ -38,64 +38,187 @@
  * 
  */
 
+
+
+#include <assert.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <algorithm>
+#include <iostream>
+#include <numeric>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+
 // @lc code=start
 class Solution {
-    int log2(int x) {
-        return 31 - __builtin_clz((unsigned int)x);
+
+    // 表示线段树的数组treeArray[]
+    // 数组里面的值表示区间里面的最小值
+    vector<int> treeArray;
+    vector<int> heights;
+
+    int leftNodePos(int rootPos) {
+        return (rootPos << 1) + 1;
     }
 
-    void buildST(vector<int>& A, vector<vector<int>> &st) {
-        const int N = A.size();
-        // 第一步：
-        //    - 处理长度为1的区间
-        //      即[i, i + 1)
-        //
-        // 区间的表示：
-        //      [start=i, len=2^0]
-        //      也就是st[i][len=2^0]
-        for (int i = 0; i < N; i++) {
-            st[i][0] = A[i];
-        }
+    int rightNodePos(int rootPos) {
+        return (rootPos << 1) + 2;
+    }
 
-        // 递推：
-        //      依次处理2 ^ j长度。
-        //      其中2 ^ j = 2 ^ (j-1) + 2 ^ (j-1)
-        //      注意：这里的长度都是完整的2 ^ j的
-        for (int j = 1; (1 << j) <= N; j++) {
-            // 这里要处理的区间[i, i + (1<<j)]
-            // last = i + (1<<j)
-            // 根据左闭右开原则，last是可以取到n的。这点要注意。
-            for (int i = 0; (i + (1 << j)) <= N; i++) {
-                st[i][j] = min(st[i][j - 1],
-                               st[i + (1 << (j - 1))][j - 1]);
+    // treeArray[rootPos] 将会记录数组[start, end]
+    // 这个区间上的信息。在本题中，信息为区间上的最小值
+    void buildTree(int rootPos, int start, int end) {
+        // 范围为空
+        if (start > end)
+            return;
+        // 如果区间：只有一个数
+        if (start == end) {
+            treeArray[rootPos] = start;
+        } else {
+            // 否则需要将区间分为两半
+            const int mid = start + ((end - start) >> 1);
+            buildTree(leftNodePos(rootPos), start, mid);
+            buildTree(rightNodePos(rootPos), mid + 1, end);
+            // 构建成功之后，需要利用左子树的信息和右子树的信息来
+            // 来更新 [start, end] rootNode 的信息
+            const int leftRangeMinIndex = treeArray[leftNodePos(rootPos)];
+            const int rightRangeMinIndex = treeArray[rightNodePos(rootPos)];
+
+            if (heights[leftRangeMinIndex] < heights[rightRangeMinIndex]) {
+                treeArray[rootPos] = leftRangeMinIndex;
+            } else {
+                treeArray[rootPos] = rightRangeMinIndex;
             }
         }
     }
 
-    int queryST(vector<vector<int>> &st, int l, int r) {
-        // 这里我们将区间[l, r]分为两个区间
-        // [l, l+log2(len)] => [l, len=log2(len)]
-        // [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
-        int len = r - l + 1;
-        int j = log2(len);
-        return min(st[l][j], st[r - (1 << j) + 1][j]);
+    /**
+     * 查询区间[queryStart, queryEnd]这个区间上的最小值信息
+     *
+     * treeArray[rootPos]表示区间 [start, end]上的最小值。
+     * 可以把前面的三个参数看成
+     * class TreeNode {
+     *      int val;        <-- arg: treeArray[rootPos];
+     *      int rangeStart; <-- arg: start
+     *      int rangeEnd:   <-- arg: end
+     *      TreeNode left;  <-- leftNodePos(rootPos);
+     *      TreeNode right: <-- rightNodePos(rootPos);
+     * }
+     */
+    int queryTree(int rootPos, int start, int end, int queryStart, int queryEnd) {
+        // 无效区间，返回一个queryStart下标
+        if (start > end || queryStart > queryEnd) {
+            return queryStart;
+        }
+        // 原则1： 包含于查询区间内部
+        if (queryStart <= start && end <= queryEnd) {
+            return treeArray[rootPos];
+        }
+        // 原则2：不相交时，放弃区间信息，这里我们返回最大值
+        if (end < queryStart || queryEnd < start) {
+            return queryStart;
+        }
+        // 原则3：当相交的时候，需要将[start, end]进行拆分
+        // 由于我们建树的时候，都是平分，所以这里将区间也进行平分
+        const int mid = start + ((end - start) >> 1);
+        const int leftRangeMinIndex = queryTree(leftNodePos(rootPos), start, mid, queryStart, queryEnd);
+        const int rightRangeMinIndex = queryTree(rightNodePos(rootPos), mid + 1, end, queryStart, queryEnd);
+        if (heights[leftRangeMinIndex] < heights[rightRangeMinIndex]) {
+            return leftRangeMinIndex;
+        }
+        return rightRangeMinIndex;
     }
 
+    // 当我们要更新数组中A[inx] = value的时候
+    // 线段树中存储的区间的信息，也是需要更新的
+    // 当然，这个函数在这里并没有使用到。
+    void updateTree(int rootPos, int start, int end, int idx, int value) {
+        // 如果树中的结点不在我们的更新路径上
+        if (start > end || idx < start || idx > end) {
+            return;
+        }
+        // 如果已经找到了叶子结点
+        if (start == idx && idx == end) {
+            treeArray[rootPos] = idx;
+            heights[idx] = value;
+            return;
+        }
+        // 这里后序遍历
+        // 如果是非叶子结点，那么
+        // 先更新左右子结点，再更新根结点
+        const int mid = start + ((end - start) >> 1);
+        // 更新左子树
+        updateTree(leftNodePos(rootPos), start, mid, idx, value);
+        // 更新右子树
+        updateTree(rightNodePos(rootPos), mid + 1, end, idx, value);
+        // 更新根结点
+        // 来更新 [start, end] rootNode 的信息
+        const int leftRangeMinIndex = treeArray[leftNodePos(rootPos)];
+        const int rightRangeMinIndex = treeArray[rightNodePos(rootPos)];
+        if (heights[leftRangeMinIndex] < heights[rightRangeMinIndex]) {
+            treeArray[rootPos] = leftRangeMinIndex;
+        } else {
+            treeArray[rootPos] = rightRangeMinIndex;
+        }
+    }
+
+    // 这里得到一个区域里面的最大矩形面积
+    // 这个区间域为[b, e)
+    // 注意e是取不到的
+    int getRangeMaxArea(int b, int e) {
+        const int N = heights.size();
+        // 如果为空区间
+        if (b >= e) {
+            return 0;
+        }
+
+        // 如果区间中只有一个元素
+        if (b + 1 == e) {
+            return heights[b];
+        }
+
+        // 如果有多个元素。那么找到范围里面的最小值
+        // 如果有多个最小值，那么我们就找离中心最近的那个，尽量把区域进行等分
+        int minIndex = queryTree(0/*rootPos*/, 0/*start*/, N-1/*end*/, b, e-1);
+
+        // 在使用 最小值 情况下的面积
+        int useMinIndexArea = heights[minIndex] * (e - b);
+
+        // 不用 minIndex 那么就会把区间分为两部分
+        int leftMaxArea = getRangeMaxArea(b, minIndex);
+        int rightMaxArea = getRangeMaxArea(minIndex + 1, e);
+
+        return max(useMinIndexArea, max(leftMaxArea, rightMaxArea));
+    }
 public:
-    int largestRectangleArea(vector<int>& A) {
-        const int N = A.size();
-        int ans = 0;
+    int largestRectangleArea(vector<int>& heights) {
+        const int N = heights.size();
+        this->heights.swap(heights);
 
-        vector<vector<int>> st(N, vector<int>(log2(N)+1));
-        buildST(A, st);
+        treeArray.resize(N<<2);
 
-        for (int i = 0; i < N; i++) {
-            for (int j = i; j < N; j++) {
-                ans = max(ans, queryST(st, i, j) * (j - i + 1));
-            }
-        }
-        return ans;
+        // 在使用segment tree的时候，区间都是[begin, end]两边都可以取到
+        buildTree(0, 0, N - 1);
+
+        return getRangeMaxArea(0, N);
     }
 };
 // @lc code=end
 
+
+int main(void) {
+    vector<int> A{2,1,5,6,2,3};
+    Solution s;
+    std::cout << s.largestRectangleArea(A) << std::endl;
+    return 0;
+}

@@ -40,71 +40,43 @@
 
 # @lc code=start
 class Solution(object):
-    def log2(self, N):
-        k = 0
-        while ((1<<(k+1)) <= N):
-            k += 1
-        return k
+    # 这里得到一个区域里面的最大矩形面积
+    # 这个区间域为[b, e)
+    # 注意e是取不到的
+    def getRangeMaxArea(self, heights, b, e):
+        # 如果为空区间
+        if b >= e:
+            return 0
 
-    def buildRow(self, Col):
-        ret = []
-        for x in range(Col):
-            ret.append(0)
-        return ret
+        # 如果区间中只有一个元素
+        if b + 1 == e:
+            return heights[b]
 
-    def buildMatrix(self, Row, Col):
-        ret = []
-        for r in range(Row):
-            ret.append(self.buildRow(Col))
-        return ret
+        # 如果有多个元素。那么找到范围里面的最小值
+        # 如果有多个最小值，那么我们就找离中心最近的那个，尽量把区域进行等分
+        mid = b + ((e-b) >> 1)
+        minIndex = b
 
-    def buildST(self, A, st):
-        N = 0 if not A else len(A)
+        for i in range(b + 1, e):
+            if heights[i] < heights[minIndex]:
+                minIndex = i
+            elif (heights[i] == heights[minIndex]):
+                # 多个最小值，那么谁离mid更近，我们用谁
+                if abs(mid - i) < abs(mid - minIndex):
+                    minIndex = i
 
-        # 第一步：
-        #    - 处理长度为1的区间
-        #      即[i, i + 1)
-        #
-        # 区间的表示：
-        #      [start=i, len=2^0]
-        #      也就是st[i][len=2^0]
-        for i in range(N):
-            st[i][0] = A[i]
+        # 在使用 最小值 情况下的面积
+        useMinIndexArea = heights[minIndex] * (e - b)
 
-        # 递推：
-        #      依次处理2 ^ j长度。
-        #      其中2 ^ j = 2 ^ (j-1) + 2 ^ (j-1)
-        #      注意：这里的长度都是完整的2 ^ j
-        j = 1
-        while ((1<<j) <= N):
-            # 这里要处理的区间[i, i + (1<<j)]
-            # last = i + (1<<j)
-            # 根据左闭右开原则，last是可以取到n的。这点要注意。
-            i = 0
-            while ((i + (1<<j)) <= N):
-                st[i][j] = min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1])
-                i += 1
-            j += 1
+        # 不用 minIndex 那么就会把区间分为两部分
+        leftMaxArea = self.getRangeMaxArea(heights, b, minIndex)
+        rightMaxArea = self.getRangeMaxArea(heights, minIndex + 1, e)
 
-    def queryST(self, st, l, r):
-        # 这里我们将区间[l, r]分为两个区间
-        # [l, l+log2(len)] => [l, len=log2(len)]
-        # [r-log2(len)+1, r] => [r-log2(len) + 1, len=log2(len)]
-        p = self.log2(r - l + 1)
-        return min(st[l][p], st[r - (1 << p) + 1][p])
+        return max(useMinIndexArea, max(leftMaxArea, rightMaxArea))
+    
 
     def largestRectangleArea(self, A):
         N = 0 if not A else len(A)
-
-        st = self.buildMatrix(N, self.log2(N) + 1)
-        self.buildST(A, st)
-
-        ans = 0
-
-        for i in range(N):
-            for j in range(i, N):
-                ans = max(ans, self.queryST(st, i, j) * (j - i + 1))
-
-        return ans
+        return self.getRangeMaxArea(A, 0, N)
 # @lc code=end
 

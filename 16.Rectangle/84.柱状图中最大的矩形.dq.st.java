@@ -43,6 +43,7 @@ import java.lang.reflect.Array;
 // @lc code=start
 
 class Solution {
+    
     // 这里得到一个区域里面的最大矩形面积
     // 这个区间域为[b, e)
     // 注意e是取不到的

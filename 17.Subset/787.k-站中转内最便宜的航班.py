@@ -63,14 +63,29 @@
 
 # @lc code=start
 class Solution(object):
-    def findCheapestPrice(self, n, flights, src, dst, K):
+    def findCheapestPrice(self, n, flights, src, target, K):
         """
         :type n: int
         :type flights: List[List[int]]
         :type src: int
-        :type dst: int
+        :type target: int
         :type K: int
         :rtype: int
         """
+        INF = 2147483647 >> 2
+        dst = [INF] * (n + 1)
+
+        for k in range(K+1):
+            next = [x for x in dst]
+            next[src] = 0
+            dst[src] = 0
+
+            for f in flights:
+                b,e,cost = f
+                next[e] = min(next[e], dst[b] + cost)
+            
+            dst = next
+        
+        return -1 if dst[target] >= INF else dst[target]
 # @lc code=end
 

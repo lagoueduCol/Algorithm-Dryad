@@ -26,7 +26,7 @@ class Solution {
   }
 
 public:
-  int reversePairs(vector<int> &nums) {
+  int seqNumber(vector<int> &nums) {
     int cnt = 0;
     vector<int> t(nums.size());
     msort(nums, 0, nums.size(), t, cnt);

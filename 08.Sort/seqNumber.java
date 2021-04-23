@@ -29,7 +29,8 @@ class Solution {
       a[i] = t[i];
     }
   }
-  public int reversePairs(int[] nums) {
+
+  public int seqNumber(int[] nums) {
     if (nums == null || nums.length <= 1) {
       return 0;
     }

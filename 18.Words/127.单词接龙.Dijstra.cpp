@@ -119,8 +119,12 @@ public:
                 // word改变字符，可以变成什么样的单词呢？
                 auto old = c;
 
-                for (char to = 'a'; to <= 'z'; to++) {
-                    c = to;
+                for (char toByte = 'a'; toByte <= 'z'; toByte++) {
+                    if (toByte == old) {
+                        continue;
+                    }
+
+                    c = toByte;
                     auto iter = wordID.find(word);
 
                     if (iter != wordID.end()) {
@@ -159,6 +163,8 @@ public:
             auto cur = Q.top();
             const int curSteps = dist[cur];
             Q.pop();
+
+            std::cout << "start = " << cur << std::endl;
 
             for (auto nextNode: G[cur]) {
                 const int nextSteps = curSteps + 1;

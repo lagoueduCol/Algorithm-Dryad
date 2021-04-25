@@ -63,13 +63,29 @@
 # @lc code=start
 import string
 
+import heapq
+
+# pop
+# cur = heapq.heappop(heap)
+# push
+# heapq.heappush(heap, cur.next)
+
 class Solution(object):
-    def dfs(self, G, start, dist):
-        for nextNode in G[start]:
-            nextDist = dist[start] + 1
+    def dfs(self, G, dist, Q):
+
+        # 如果优先级队列中没有元素了
+        if len(Q) == 0:
+            return
+        
+        startDist, startNode =  heapq.heappop(Q)
+
+        for nextNode in G[startNode]:
+            nextDist = dist[startNode] + 1
             if nextDist < dist[nextNode]:
                 dist[nextNode] = nextDist
-                self.dfs(G, nextNode, dist)
+                heapq.heappush(Q, [nextDist, nextNode])
+        
+        self.dfs(G, dist, Q)
 
     def ladderLength(self, beginWord, endWord, wordList):
         """
@@ -137,7 +153,9 @@ class Solution(object):
         dist = [maxPathLength] * len(wordID)
         dist[src] = 0
 
-        self.dfs(G, src, dist)
+        Q = [[0, src]]
+
+        self.dfs(G, dist, Q)
 
         return 0 if dist[dst] >= maxPathLength else dist[dst] + 1
 

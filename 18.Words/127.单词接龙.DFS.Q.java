@@ -64,13 +64,14 @@
 import java.util.*;
 
 // @lc code=start
-class Solution
-{
+class Solution {
+
   Map<String, Integer> wordID = null;
   List<Integer> Graph[] = null;
 
-  boolean buildGraph(String beginWord, String endWord, List<String> wordList)
-  {
+  boolean buildGraph(String beginWord,
+                     String endWord,
+                     List<String> wordList) {
     // 首先如果单词一样
     if (beginWord.compareTo(endWord) == 0) {
       return false;
@@ -133,48 +134,66 @@ class Solution
     return true;
   }
 
-  public int ladderLength(String beginWord,
-                          String endWord,
-                          List<String> wordList)
+  private int[] dist = null;
+  private Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> dist[v1] - dist[v2]);
+
+  private void dfs()
   {
-
-    // 如果建图失败，那么返回0
-    if (!buildGraph(beginWord, endWord, wordList)) {
-      return 0;
+    if (Q.isEmpty()) {
+      return;
     }
 
-    // 接下来，我们就是在一个图中找到两个点的最近距离
-    // 这里采用BFS的方法
-    final int src = wordID.get(beginWord);
-    final int target = wordID.get(endWord);
+    final int startNode = Q.poll();
 
-    // 记录从src到各个点的距离
-    int[] dist = new int[wordID.size()];
-    for (int i = 0; i < dist.length; i++) {
-      dist[i] = wordID.size() * wordID.size() + 100;
-    }
-    dist[src] = 0;
-
-    // java小堆
-    Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> dist[v1] - dist[v2]);
-
-    Q.add(src);
-
-    while (!Q.isEmpty()) {
-      final int startNode = Q.poll();
-      final int startDist = dist[startNode];
-
-      for (int nextNode : Graph[startNode]) {
-
-        final int nextDist = startDist + 1;
-        if (dist[nextNode] > nextDist) {
-          dist[nextNode] = nextDist;
-          Q.add(nextNode);
-        }
+    for (int nextNode : Graph[startNode]) {
+      final int nextDist = dist[startNode] + 1;
+      if (nextDist < dist[nextNode]) {
+        dist[nextNode] = nextDist;
+        Q.add(nextNode);
       }
     }
 
-    return dist[target] > wordID.size() ? 0 : dist[target] + 1;
+    dfs();
+  }
+
+  public int ladderLength(String beginWord,
+                          String endWord,
+                          List<String> wordList) {
+    if (!buildGraph(beginWord, endWord, wordList)) {
+      return 0;
+    }
+    final int src = wordID.get(beginWord);
+    final int dst = wordID.get(endWord);
+
+    dist = new int[wordID.size()];
+    int maxPathLength = wordID.size() + 1024;
+
+    for (int i = 0; i < dist.length; i++) {
+      dist[i] = maxPathLength;
+    }
+    dist[src] = 0;
+
+    Q.add(src);
+
+    dfs();
+
+    return dist[dst] >= maxPathLength ? 0 : dist[dst] + 1;
   }
 }
 // @lc code=end
+
+public class Main {
+  public static void main(String[] args) {
+      Solution s = new Solution();
+      String beginWord = new String("hit");
+      String endWord = new String("cog");
+      List<String> wordList = new ArrayList<>();
+      String ar[] = new String[]{"hot","dot","dog","lot","log","cog"};
+      for (int i = 0; i < ar.length; i++) {
+          wordList.add(ar[i]);
+      }
+
+      System.out.println(s.ladderLength(beginWord, endWord, wordList));
+  }
+}
+

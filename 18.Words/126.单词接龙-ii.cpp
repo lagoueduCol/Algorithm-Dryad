@@ -1,29 +1,33 @@
 /*
- * @lc app=leetcode.cn id=127 lang=cpp
+ * @lc app=leetcode.cn id=126 lang=cpp
  *
- * [127] 单词接龙
+ * [126] 单词接龙 II
  *
- * https://leetcode-cn.com/problems/word-ladder/description/
+ * https://leetcode-cn.com/problems/word-ladder-ii/description/
  *
  * algorithms
- * Hard (46.22%)
- * Likes:    743
+ * Hard (38.47%)
+ * Likes:    427
  * Dislikes: 0
- * Total Accepted:    105.3K
- * Total Submissions: 227.7K
+ * Total Accepted:    31.1K
+ * Total Submissions: 80.9K
  * Testcase Example:  '"hit"\n"cog"\n["hot","dot","dog","lot","log","cog"]'
  *
- * 字典 wordList 中从单词 beginWord 和 endWord 的 转换序列 是一个按下述规格形成的序列：
+ * 按字典 wordList 完成从单词 beginWord 到单词 endWord 转化，一个表示此过程的 转换序列 是形式上像 beginWord ->
+ * s1 -> s2 -> ... -> sk 这样的单词序列，并满足：
  * 
  * 
- * 序列中第一个单词是 beginWord 。
- * 序列中最后一个单词是 endWord 。
- * 每次转换只能改变一个字母。
- * 转换过程中的中间单词必须是字典 wordList 中的单词。
  * 
  * 
- * 给你两个单词 beginWord 和 endWord 和一个字典 wordList ，找到从 beginWord 到 endWord 的 最短转换序列
- * 中的 单词数目 。如果不存在这样的转换序列，返回 0。
+ * 每对相邻的单词之间仅有单个字母不同。
+ * 转换过程中的每个单词 si（1 ）必须是字典 wordList 中的单词。注意，beginWord 不必是字典 wordList 中的单词。
+ * sk == endWord
+ * 
+ * 
+ * 给你两个单词 beginWord 和 endWord ，以及一个字典 wordList 。请你找出并返回所有从 beginWord 到 endWord
+ * 的 最短转换序列 ，如果不存在这样的转换序列，返回一个空列表。每个序列都应该以单词列表 [beginWord, s1, s2, ..., sk]
+ * 的形式返回。
+ * 
  * 
  * 
  * 示例 1：
@@ -31,8 +35,10 @@
  * 
  * 输入：beginWord = "hit", endWord = "cog", wordList =
  * ["hot","dot","dog","lot","log","cog"]
- * 输出：5
- * 解释：一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog", 返回它的长度 5。
+ * 输出：[["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
+ * 解释：存在 2 种最短的转换序列：
+ * "hit" -> "hot" -> "dot" -> "dog" -> "cog"
+ * "hit" -> "hot" -> "lot" -> "log" -> "cog"
  * 
  * 
  * 示例 2：
@@ -40,8 +46,9 @@
  * 
  * 输入：beginWord = "hit", endWord = "cog", wordList =
  * ["hot","dot","dog","lot","log"]
- * 输出：0
- * 解释：endWord "cog" 不在字典中，所以无法进行转换。
+ * 输出：[]
+ * 解释：endWord "cog" 不在字典 wordList 中，所以不存在符合要求的转换序列。
+ * 
  * 
  * 
  * 
@@ -54,38 +61,17 @@
  * wordList[i].length == beginWord.length
  * beginWord、endWord 和 wordList[i] 由小写英文字母组成
  * beginWord != endWord
- * wordList 中的所有字符串 互不相同
+ * wordList 中的所有单词 互不相同
+ * 
+ * 
  * 
  * 
  */
 
-
-#include <assert.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <algorithm>
-#include <iostream>
-#include <numeric>
-#include <queue>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-
 // @lc code=start
 class Solution {
 public:
-    int ladderLength(string beginWord,
-                     string endWord,
-                     vector<string>& wordList) {
-
+    vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
         // 如果两个单词完全一样
         if (beginWord == endWord) {
             return 0;
@@ -147,42 +133,18 @@ public:
         int step = 0;
 
         vector<int> cur{src}, next;
+
         bool vis[wordID.size()];
         memset(vis, 0, sizeof(vis));
         vis[src] = true;
 
-        while (!cur.empty()) {
-            next.clear();
+        // 单向BFS构建可行性地图
+        // 再DFS反向寻找结果
 
-            step++;
-
-            for (int curNode: cur) {
-                if (curNode == dst) {
-                    return step;
-                }
-
-                for (auto nextNode : G[curNode]) {
-                    if (!vis[nextNode]) {
-                        vis[nextNode] = true;
-                        next.push_back(nextNode);
-                    }
-                }
-            }
-
-            cur.swap(next);
-        }
-
-        return 0;
+        // Solution 2: 
+        // Dijstra 找到到每个点的最短距离
+        // 然后再用DFS或者BFS反向找
     }
 };
 // @lc code=end
 
-int main(void) {
-    string beginWord = "hit";
-    string endWord = "cog";
-    vector<string> wordList{"hot","dot","dog","lot","log","cog"};
-
-    Solution s;
-    std::cout << s.ladderLength(beginWord, endWord, wordList) << std::endl;
-    return 0;
-}

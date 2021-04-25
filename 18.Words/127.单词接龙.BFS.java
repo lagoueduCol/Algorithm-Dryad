@@ -63,17 +63,19 @@ import java.util.*;
 
 // @lc code=start
 class Solution {
-    public int ladderLength(String beginWord,
-                            String endWord,
-                            List<String> wordList) {
-    
+    Map<String, Integer> wordID = null;
+    List<Integer> Graph[] = null;
+
+    boolean buildGraph(String beginWord,
+                       String endWord,
+                       List<String> wordList) {
         // 首先如果单词一样
         if (beginWord.compareTo(endWord) == 0) {
-            return 0;
+            return false;
         }
 
         // 需要记录每个单词的ID
-        Map<String, Integer> wordID = new HashMap<>();
+        wordID = new HashMap<>();
         int id = 0;
         for (String word: wordList) {
             if (!wordID.containsKey(word)) {
@@ -84,7 +86,7 @@ class Solution {
         // 根据题意：如果我们在wordList中找不到endWord必须要
         // 返回0
         if (!wordID.containsKey(endWord)) {
-            return 0;
+            return false;
         }
 
         // 如果wordID中没有beginWord
@@ -95,7 +97,7 @@ class Solution {
         }
 
         // 构建图
-        List<Integer> Graph[] = new ArrayList[wordID.size()];
+        Graph = new ArrayList[wordID.size()];
         for (int i = 0; i < wordID.size(); i++) {
             Graph[i] = new ArrayList<>();
         }
@@ -124,6 +126,18 @@ class Solution {
 
                 wordBytes[i] = old;
             }
+        }
+
+        return true;
+    }
+
+    public int ladderLength(String beginWord,
+                            String endWord,
+                            List<String> wordList) {
+
+        // 如果建图失败，那么返回0
+        if (!buildGraph(beginWord, endWord, wordList)) {
+            return 0;
         }
 
         // 接下来，我们就是在一个图中找到两个点的最近距离

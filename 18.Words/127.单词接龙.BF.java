@@ -64,13 +64,26 @@
 import java.util.*;
 
 // @lc code=start
-class Solution
-{
+class Solution {
   Map<String, Integer> wordID = null;
-  List<Integer> Graph[] = null;
 
-  boolean buildGraph(String beginWord, String endWord, List<String> wordList)
-  {
+  class Edge {
+    public int from;
+    public int to;
+    public Edge(int a, int b) {
+      from = Math.min(a, b);
+      to = Math.max(a, b);
+    }
+  }
+
+  List<Edge> allEdges = null;
+
+  boolean buildEdges(String beginWord,
+                     String endWord,
+                     List<String> wordList) {
+    Set<Edge> edges = new HashSet<>();
+    allEdges = new ArrayList<>();
+
     // 首先如果单词一样
     if (beginWord.compareTo(endWord) == 0) {
       return false;
@@ -98,12 +111,6 @@ class Solution
       wordList.add(beginWord);
     }
 
-    // 构建图
-    Graph = new ArrayList[wordID.size()];
-    for (int i = 0; i < wordID.size(); i++) {
-      Graph[i] = new ArrayList<>();
-    }
-
     for (String word : wordList) {
       // 边的起始点 from
       final int from = wordID.get(word);
@@ -121,13 +128,17 @@ class Solution
           if (wordID.containsKey(toWord)) {
             // 边的终点to
             int to = wordID.get(toWord);
-            // 把这条边加到Graph中
-            Graph[from].add(to);
+            // 把边from -> to加到edges中
+            edges.add(new Edge(from, to));
           }
         }
 
         wordBytes[i] = old;
       }
+    }
+
+    for (Edge e : edges) {
+      allEdges.add(e);
     }
 
     return true;
@@ -139,42 +150,56 @@ class Solution
   {
 
     // 如果建图失败，那么返回0
-    if (!buildGraph(beginWord, endWord, wordList)) {
+    if (!buildEdges(beginWord, endWord, wordList)) {
       return 0;
     }
 
     // 接下来，我们就是在一个图中找到两个点的最近距离
-    // 这里采用BFS的方法
+    // 这里采用BF算法
     final int src = wordID.get(beginWord);
     final int target = wordID.get(endWord);
 
+    final int totalNodeNumber = wordID.size();
+    final int maxPathLength = totalNodeNumber * totalNodeNumber + 1024;
+
     // 记录从src到各个点的距离
-    int[] dist = new int[wordID.size()];
+    int[] dist = new int[totalNodeNumber];
     for (int i = 0; i < dist.length; i++) {
-      dist[i] = wordID.size() * wordID.size() + 100;
+      dist[i] = maxPathLength;
     }
     dist[src] = 0;
 
-    // java小堆
-    Queue<Integer> Q = new PriorityQueue<>((v1, v2) -> dist[v1] - dist[v2]);
+    // BF算法更新的轮次
+    for (int times = 0; times < totalNodeNumber; times++) {
 
-    Q.add(src);
+      // 遍历每条边
+      for (Edge e : allEdges) {
+        final int from = e.from;
+        final int to = e.to;
 
-    while (!Q.isEmpty()) {
-      final int startNode = Q.poll();
-      final int startDist = dist[startNode];
-
-      for (int nextNode : Graph[startNode]) {
-
-        final int nextDist = startDist + 1;
-        if (dist[nextNode] > nextDist) {
-          dist[nextNode] = nextDist;
-          Q.add(nextNode);
-        }
+        dist[to] = Math.min(dist[to], dist[from] + 1);
+        // 无向边，两边均可更新
+        dist[from] = Math.min(dist[from], dist[to] + 1);
       }
+
     }
 
-    return dist[target] > wordID.size() ? 0 : dist[target] + 1;
+    return dist[target] >= maxPathLength ? 0 : dist[target] + 1;
   }
 }
 // @lc code=end
+
+public class Main {
+  public static void main(String[] args) {
+      Solution s = new Solution();
+      String beginWord = new String("hit");
+      String endWord = new String("cog");
+      List<String> wordList = new ArrayList<>();
+      String ar[] = new String[]{"hot","dot","dog","lot","log","cog"};
+      for (int i = 0; i < ar.length; i++) {
+          wordList.add(ar[i]);
+      }
+
+      System.out.println(s.ladderLength(beginWord, endWord, wordList));
+  }
+}

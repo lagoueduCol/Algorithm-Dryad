@@ -91,7 +91,7 @@ public:
             return 0;
         }
 
-        // 两点之间的最短距离
+        // 单词到ID的编号
         unordered_map<string, int> wordID;
 
         int i = 0;

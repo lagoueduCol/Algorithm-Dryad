@@ -63,17 +63,19 @@ import java.util.*;
 
 // @lc code=start
 class Solution {
-    public int ladderLength(String beginWord,
-                            String endWord,
-                            List<String> wordList) {
-    
+    Map<String, Integer> wordID = null;
+    List<Integer> Graph[] = null;
+
+    boolean buildGraph(String beginWord,
+                       String endWord,
+                       List<String> wordList) {
         // 首先如果单词一样
         if (beginWord.compareTo(endWord) == 0) {
-            return 0;
+            return false;
         }
 
         // 需要记录每个单词的ID
-        Map<String, Integer> wordID = new HashMap<>();
+        wordID = new HashMap<>();
         int id = 0;
         for (String word: wordList) {
             if (!wordID.containsKey(word)) {
@@ -84,7 +86,7 @@ class Solution {
         // 根据题意：如果我们在wordList中找不到endWord必须要
         // 返回0
         if (!wordID.containsKey(endWord)) {
-            return 0;
+            return false;
         }
 
         // 如果wordID中没有beginWord
@@ -95,7 +97,7 @@ class Solution {
         }
 
         // 构建图
-        List<Integer> Graph[] = new ArrayList[wordID.size()];
+        Graph = new ArrayList[wordID.size()];
         for (int i = 0; i < wordID.size(); i++) {
             Graph[i] = new ArrayList<>();
         }
@@ -126,6 +128,18 @@ class Solution {
             }
         }
 
+        return true;
+    }
+
+    public int ladderLength(String beginWord,
+                            String endWord,
+                            List<String> wordList) {
+
+        // 如果建图失败，那么返回0
+        if (!buildGraph(beginWord, endWord, wordList)) {
+            return 0;
+        }
+
         // 接下来，我们就是在一个图中找到两个点的最近距离
         // 这里采用BFS的方法
         final int srcNode = wordID.get(beginWord);
@@ -135,14 +149,14 @@ class Solution {
         // 双向BFS的方式来进行处理
 
         // 这里正向出发
-        Set<Integer> cur = new HashSet<>();
-        cur.add(srcNode);
+        Set<Integer> src = new HashSet<>();
+        src.add(srcNode);
 
         // 这里逆向出发
         Set<Integer> dst = new HashSet<>();
         dst.add(dstNode);
 
-        final int curVisTag = 1;
+        final int srcVisTag = 1;
         final int dstVisTag = 2;
 
         // 记录哪些点被访问过了
@@ -150,25 +164,25 @@ class Solution {
 
         // 通过不同的标号来标记点是被前序遍历过
         // 还是被后序遍历过
-        vis[srcNode] = curVisTag;
+        vis[srcNode] = srcVisTag;
         vis[dstNode] = dstVisTag;
 
         // 初始步数
         int step = 0;
 
-        while (!cur.isEmpty() && !dst.isEmpty()) {
+        while (!src.isEmpty() && !dst.isEmpty()) {
             step++;
 
-            // 查看cur与set是否相遇
+            // 查看src与set是否相遇
             for (Integer node: dst) {
-                if (cur.contains(node)) {
+                if (src.contains(node)) {
                     return step;
                 }
             }
 
             // 哪边点更少，就更新哪一边
-            final int visTag = cur.size() < dst.size() ? curVisTag : dstVisTag;
-            Set<Integer> tmp = cur.size() < dst.size() ? cur : dst;
+            final int visTag = src.size() < dst.size() ? srcVisTag : dstVisTag;
+            Set<Integer> tmp = src.size() < dst.size() ? src : dst;
             Set<Integer> next = new HashSet<>();
 
             for (int startNode : tmp) {
@@ -180,8 +194,8 @@ class Solution {
                 }
             }
 
-            if (cur.size() < dst.size()) {
-                cur = next;
+            if (src.size() < dst.size()) {
+                src = next;
             } else {
                 dst = next;
             }

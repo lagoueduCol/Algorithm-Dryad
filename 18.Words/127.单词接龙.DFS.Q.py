@@ -135,7 +135,7 @@ class Solution(object):
                 for toChar in string.ascii_lowercase:
                     if toChar == old:
                         continue
-                    
+
                     wordArray[i] = toChar
 
                     toWord = ''.join(wordArray)

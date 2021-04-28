@@ -1,3 +1,5 @@
+import java.util.*;
+
 /*
  * @lc app=leetcode.cn id=1631 lang=java
  *
@@ -71,7 +73,6 @@
 
 // @lc code=start
 
-// 并查集类
 class UnionFind
 {
   private int[] F = null;
@@ -100,23 +101,46 @@ class UnionFind
 
 class Solution
 {
+  //  二分搜索
   // 行数
   private int Rows = 0;
-
   // 列数
   private int Cols = 0;
 
-  // 四个方向
-  private int[][] dir = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
-
   private int getPointMapping(int r, int c) { return r * Cols + c; }
 
-  private void
-  putEdge(int[][] edges, int iter, int r, int c, int nr, int nc, int cost)
+  // f(x)函数
+  // 重新映射之的一维数组
+  // midValue是在二分的时候给定的值
+  // 我们在进行搜索的时候，路径上的绝对值不能比这个大
+  // 只能是 <= midValue.
+  // 此时我们只需要寻找看看是否存在一条路径即可
+  // 如果存在一条路径，上面的绝对值 <= midValue
+  // 那么满足条件-> 返回0
+  // 如果没有这样的路径，那么返回-1
+  private int getC(int[][] heights, int midValue)
   {
-    edges[iter][0] = getPointMapping(r, c);
-    edges[iter][1] = getPointMapping(nr, nc);
-    edges[iter][2] = cost;
+    UnionFind uf = new UnionFind(Rows * Cols);
+    for (int r = 0; r < Rows; r++) {
+      for (int c = 0; c < Cols; c++) {
+        // 看一下 右边的点
+        if (c + 1 < Cols) {
+          int edgeCost = Math.abs(heights[r][c] - heights[r][c + 1]);
+          if (edgeCost <= midValue) {
+            uf.Union(getPointMapping(r, c), getPointMapping(r, c + 1));
+          }
+        }
+        if (r + 1 < Rows) {
+          int edgeCost = Math.abs(heights[r][c] - heights[r + 1][c]);
+          if (edgeCost <= midValue) {
+            uf.Union(getPointMapping(r, c), getPointMapping(r + 1, c));
+          }
+        }
+      }
+    }
+
+      return uf.Find(getPointMapping(0, 0)) ==
+                uf.Find(getPointMapping(Rows-1, Cols-1)) ? 0 : -1;
   }
 
   public int minimumEffortPath(int[][] heights)
@@ -128,73 +152,63 @@ class Solution
     Rows = heights.length;
     Cols = heights[0].length;
 
-    // 如果只有一个点
+    // if just one node
     if (Rows == 1 && Cols == 1) {
       return 0;
     }
 
-    // 采用并查集的做法
-
-    // 横向的无向边的数目
-    final int hNumber = Rows * (Cols - 1);
-    // 纵向的无向边的数目
-    final int vNumber = Cols * (Rows - 1);
-
-    // 无向边
-    // 记录起点，终点，权重
-    int[][] edges = new int[hNumber + vNumber][3];
-
-    // 得到所有的边
-    int edgeIter = 0;
+    // 二分搜索
+    // 找到搜索范围里：最大值/最小值
+    int minCost = Integer.MAX_VALUE;
+    int maxCost = 0;
     for (int r = 0; r < Rows; r++) {
       for (int c = 0; c < Cols; c++) {
         // 看一下 右边的点
         if (c + 1 < Cols) {
-          int edgeCost = Math.abs(heights[r][c] - heights[r][c + 1]);
-          putEdge(edges, edgeIter, r, c, r, c + 1, edgeCost);
-          edgeIter++;
+          int rightValue = Math.abs(heights[r][c] - heights[r][c + 1]);
+          minCost = Math.min(minCost, rightValue);
+          maxCost = Math.max(maxCost, rightValue);
         }
         if (r + 1 < Rows) {
-          int edgeCost = Math.abs(heights[r][c] - heights[r + 1][c]);
-          putEdge(edges, edgeIter, r, c, r + 1, c, edgeCost);
-          edgeIter++;
+          int downValue = Math.abs(heights[r][c] - heights[r + 1][c]);
+          minCost = Math.min(minCost, downValue);
+          maxCost = Math.max(maxCost, downValue);
         }
       }
     }
 
-    // 再将边进行排序
-    Arrays.sort(edges, new Comparator<int[]>() {
-      public int compare(int[] a, int[] b) { return a[2] - b[2]; }
-    });
-
-    // 排序结束之后，再使用并查集，依次加入边
-    final int totalNodes = Rows * Cols;
-    UnionFind uf = new UnionFind(totalNodes);
-
-    final int src = 0;
-    final int dst = getPointMapping(Rows - 1, Cols - 1);
-
-    for (int[] edge : edges) {
-      uf.Union(edge[0], edge[1]);
-      // 如果能让 src dst连通
-      // 那么就是当前的cost
-      if (uf.Find(src) == uf.Find(dst)) {
-        return edge[2];
+    // 那么应该有一个值 target
+    // 当 路径的最大绝对值差为 x
+    // 并且 x >= target的时候
+    // 总是可以走通的
+    // 所以我们二分搜索的范围就为[minCost, maxCost + 1)
+    // 我们定义-1: 表示左上角与右下有没有通路
+    //        0: 表示左上角与右下角有通路
+    // 那么形成的C数组就是[-1,-1,-1,-1, 0, 0, 0, 0]
+    // 这样的结构
+    // 因此，我们在利用二分搜索的时候，只需要找到最左边的
+    // 0的位置就可以了。
+    int l = minCost, r = maxCost + 1;
+    while (l < r) {
+      final int mid = l + ((r - l) >> 1);
+      final int mv = getC(heights, mid);
+      if (mv < 0) {
+        l = mid + 1;
+      } else {
+        r = mid;
       }
     }
-
-    assert 0 > -1; // Should not reach here!
-
-    return 0;
+    return l;
   }
 }
+
 // @lc code=end
 
 public class Main
 {
   public static void main(String[] args)
   {
-    int[][] heights = new int[][] { { 1, 10, 6, 7, 9, 10, 4, 9 } };
+    int[][] heights = new int[][] { { 1, 2, 2 }, { 3, 8, 2 }, { 5, 3, 5 } };
     Solution s = new Solution();
     System.out.println(s.minimumEffortPath(heights));
   }

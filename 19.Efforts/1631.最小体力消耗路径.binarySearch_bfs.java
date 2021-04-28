@@ -1,3 +1,5 @@
+import java.util.*;
+
 /*
  * @lc app=leetcode.cn id=1631 lang=java
  *
@@ -92,36 +94,47 @@ class Solution
     }
   }
 
-  // 这里采用DFS来寻路
+  // 这里采用BFS来寻路
   // <r,c>是当前的出发点
-  private boolean dfs(int[][] heights, int maxValue, int r, int c)
+  private boolean bfs(int[][] heights, int maxValue, int r, int c)
   {
-    // 如果已经走到了目标点<rows-1, cols-1>
-    if (r == Rows - 1 && c == Cols - 1) {
-      return true;
-    }
+    // 我们只是用普通的队列
+    Queue<int[]> Q = new LinkedList<>();
 
-    // 查看 <r,c>点的四周
-    for (int d = 0; d < 4; d++) {
-      final int nr = r + dir[d][0];
-      final int nc = c + dir[d][1];
+    // 处理第一个点
+    Q.offer(new int[] { r, c });
+    vis[r][c] = true;
 
-      // 如果周边的点有效，并且没有被访问过
-      if ((!(nr < 0 || nc < 0 || nr >= Rows || nc >= Cols)) && !vis[nr][nc]) {
+    while (!Q.isEmpty()) {
+      // 取出队列中的点作为出发点
+      int[] topNodePos = Q.poll();
+      r = topNodePos[0];
+      c = topNodePos[1];
 
-        // 获取边的代价
-        final int cost = Math.abs(heights[r][c] - heights[nr][nc]);
+      if (r == (Rows - 1) && c == (Cols - 1)) {
+        return true;
+      }
 
-        // 在走的时候，如果比midValue大，那么这条路就不能走了
-        if (cost <= maxValue) {
-          vis[nr][nc] = true;
-          if (dfs(heights, maxValue, nr, nc)) {
-            return true;
+      // 遍历四周的点
+      for (int d = 0; d < 4; d++) {
+        int nr = r + dir[d][0];
+        int nc = c + dir[d][1];
+        // 如果<nr, nc>不越界
+        if (!(nr < 0 || nc < 0 || nr >= Rows || nc >= Cols)) {
+
+          // 如果这个点还没有被访问过
+          // 看一下边的权重
+          final int edgeWeight = Math.abs(heights[r][c] - heights[nr][nc]);
+          // 如果这条边合法
+          if (edgeWeight <= maxValue && !vis[nr][nc]) {
+            Q.offer(new int[] { nr, nc });
+            vis[nr][nc] = true;
           }
         }
       }
     }
-    return false;
+
+    return vis[Rows - 1][Cols - 1];
   }
 
   // f(x)函数
@@ -136,8 +149,7 @@ class Solution
   private int getC(int[][] heights, int midValue)
   {
     clearVisRecord();
-    vis[0][0] = true;
-    return dfs(heights, midValue, 0, 0) ? 0 : -1;
+    return bfs(heights, midValue, 0, 0) ? 0 : -1;
   }
 
   public int minimumEffortPath(int[][] heights)
@@ -208,7 +220,7 @@ public class Main
 {
   public static void main(String[] args)
   {
-    int[][] heights = new int[][] { { 1, 10, 6, 7, 9, 10, 4, 9 } };
+    int[][] heights = new int[][] { { 1, 2, 2 }, { 3, 8, 2 }, { 5, 3, 5 } };
     Solution s = new Solution();
     System.out.println(s.minimumEffortPath(heights));
   }

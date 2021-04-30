@@ -13,51 +13,54 @@
  * Total Submissions: 419.1K
  * Testcase Example:  '"(()"'
  *
- * 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
- * 
- * 
- * 
- * 
- * 
+ * 给你一个只包含 '(' 和
+ * ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
+ *
+ *
+ *
+ *
+ *
  * 示例 1：
- * 
- * 
+ *
+ *
  * 输入：s = "(()"
  * 输出：2
  * 解释：最长有效括号子串是 "()"
- * 
- * 
+ *
+ *
  * 示例 2：
- * 
- * 
+ *
+ *
  * 输入：s = ")()())"
  * 输出：4
  * 解释：最长有效括号子串是 "()()"
- * 
- * 
+ *
+ *
  * 示例 3：
- * 
- * 
+ *
+ *
  * 输入：s = ""
  * 输出：0
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * 提示：
- * 
- * 
- * 0 
+ *
+ *
+ * 0
  * s[i] 为 '(' 或 ')'
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  */
 
 // @lc code=start
-class Solution {
-  public int longestValidParentheses(String s) {
+class Solution
+{
+  public int longestValidParentheses(String s)
+  {
     // 采用相每重叠的最长的区间的做法
     final int N = s == null ? 0 : s.length();
 
@@ -80,7 +83,6 @@ class Solution {
       } else {
         st.push(i);
       }
-
     }
 
     // 由于得到了很多区间，我们需要取相互覆盖的区间的最长值
@@ -112,4 +114,3 @@ class Solution {
   }
 }
 // @lc code=end
-

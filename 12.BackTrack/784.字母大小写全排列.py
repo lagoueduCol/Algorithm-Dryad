@@ -41,10 +41,41 @@
 
 # @lc code=start
 class Solution(object):
+    def backTrace(self, s, i, box, ans):
+        N = 0 if not s else len(s)
+
+        if i > N:
+            return
+        
+        if i == N:
+            ans.append(''.join(box))
+            return
+        
+        c = s[i]
+
+        if (ord('0') <= ord(c) and ord(c) <= ord('9')):
+            box.append(c)
+            self.backTrace(s, i + 1, box, ans)
+            box.pop()
+        
+        else:
+            box.append(c.lower())
+            self.backTrace(s, i + 1, box, ans)
+            box.pop()
+
+            box.append(c.upper())
+            self.backTrace(s, i + 1, box, ans)
+            box.pop()
+
     def letterCasePermutation(self, S):
         """
         :type S: str
         :rtype: List[str]
         """
+        box = []
+        ans = []
+        self.backTrace(S, 0, box, ans)
+        return ans
+
 # @lc code=end
 

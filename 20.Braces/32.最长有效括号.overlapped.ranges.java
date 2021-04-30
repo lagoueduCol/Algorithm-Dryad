@@ -13,53 +13,56 @@
  * Total Submissions: 419.1K
  * Testcase Example:  '"(()"'
  *
- * 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
- * 
- * 
- * 
- * 
- * 
+ * 给你一个只包含 '(' 和
+ * ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
+ *
+ *
+ *
+ *
+ *
  * 示例 1：
- * 
- * 
+ *
+ *
  * 输入：s = "(()"
  * 输出：2
  * 解释：最长有效括号子串是 "()"
- * 
- * 
+ *
+ *
  * 示例 2：
- * 
- * 
+ *
+ *
  * 输入：s = ")()())"
  * 输出：4
  * 解释：最长有效括号子串是 "()()"
- * 
- * 
+ *
+ *
  * 示例 3：
- * 
- * 
+ *
+ *
  * 输入：s = ""
  * 输出：0
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * 提示：
- * 
- * 
- * 0 
+ *
+ *
+ * 0
  * s[i] 为 '(' 或 ')'
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  */
 
 import java.util.*;
 
 // @lc code=start
-class Solution {
-  public int longestValidParentheses(String s) {
+class Solution
+{
+  public int longestValidParentheses(String s)
+  {
     // 采用相每重叠的最长的区间的做法
     final int N = s == null ? 0 : s.length();
 
@@ -75,7 +78,7 @@ class Solution {
       if (c == ')') {
         if (!st.isEmpty()) {
           final int topIdx = st.pop();
-          ranges.add(new int[]{topIdx, i});
+          ranges.add(new int[] { topIdx, i });
         }
       } else {
         st.push(i);
@@ -83,9 +86,7 @@ class Solution {
     }
 
     Collections.sort(ranges, new Comparator<int[]>() {
-      public int compare(int[] a, int[] b) {
-        return a[0] - b[0];
-      }
+      public int compare(int[] a, int[] b) { return a[0] - b[0]; }
     });
 
     // 由于得到了很多区间，我们需要取相互覆盖的区间的最长值
@@ -114,9 +115,10 @@ class Solution {
 }
 // @lc code=end
 
-
-public class Main {
-  public static void main(String []args) {
+public class Main
+{
+  public static void main(String[] args)
+  {
     String s = "()(())";
     Solution t = new Solution();
     System.out.println(t.longestValidParentheses(s));

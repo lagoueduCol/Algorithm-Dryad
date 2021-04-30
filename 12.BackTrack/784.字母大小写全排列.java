@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /*
  * @lc app=leetcode.cn id=784 lang=java
  *
@@ -41,8 +43,42 @@
 
 // @lc code=start
 class Solution {
-    public List<String> letterCasePermutation(String S) {
+    private void backTrace(String s,
+                           int i,
+                           StringBuilder box,
+                           List<String> ans) {
+        final int N = s.length();
+        if (i > N) {
+            return;
+        }
 
+        if (i == N) {
+            ans.add(box.toString());
+            return;
+        }
+
+        final char c = s.charAt(i);
+        if ('0' <= c && c <= '9') {
+            box.append(c);
+            backTrace(s, i + 1, box, ans);
+            box.setLength(box.length()-1);
+        } else {
+            // lower case
+            box.append(Character.toLowerCase(c));
+            backTrace(s, i + 1, box, ans);
+            box.setLength(box.length()-1);
+
+            // upper case
+            box.append(Character.toUpperCase(c));
+            backTrace(s, i + 1, box, ans);
+            box.setLength(box.length()-1);
+        }
+    }
+    public List<String> letterCasePermutation(String S) {
+        List<String> ans = new ArrayList<>();
+        StringBuilder box = new StringBuilder();
+        backTrace(S, 0, box, ans);
+        return ans;
     }
 }
 // @lc code=end

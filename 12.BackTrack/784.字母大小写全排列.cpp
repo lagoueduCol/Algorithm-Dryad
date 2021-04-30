@@ -39,11 +39,43 @@
  * 
  */
 
+#include <ctype.h>
+
 // @lc code=start
 class Solution {
-public:
-    vector<string> letterCasePermutation(string S) {
+    void backTrace(string s, int i, string box, vector<string> &ans) {
+        const int N = s.length();
 
+        if (i > N) {
+            return;
+        }
+
+        if (i == N) {
+            ans.push_back(box);
+            return;
+        }
+
+        const char c = s[i];
+        if ('0' <= c && c <= '9') {
+            box.push_back(c);
+            backTrace(s, i + 1, box, ans);
+            box.pop_back();
+        } else {
+            box.push_back(tolower(c));
+            backTrace(s, i + 1, box, ans);
+            box.pop_back();
+
+            box.push_back(toupper(c));
+            backTrace(s, i + 1, box, ans);
+            box.pop_back();
+        }
+    }
+public:
+    vector<string> letterCasePermutation(string s) {
+        vector<string> ans;
+        string box;
+        backTrace(s, 0, box, ans);
+        return ans;
     }
 };
 // @lc code=end

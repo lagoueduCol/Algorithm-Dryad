@@ -1,3 +1,4 @@
+
 // 并查集数组
 int[] F = null;
 // 记录并查集中集合的个数
@@ -45,3 +46,5 @@ void Union(int x, int y) {
 int Size(int i) {
   return Cnt[Find(i);
 }
+
+

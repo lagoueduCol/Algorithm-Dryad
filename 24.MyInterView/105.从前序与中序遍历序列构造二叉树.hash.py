@@ -41,7 +41,7 @@
 #         self.left = left
 #         self.right = right
 class Solution(object):
-    def createTree(self, preorder, b, e, inorder, f, t):
+    def createTree(self, preorder, b, e, inorder, f, t, pos):
         if b >= e:
             return None
         
@@ -49,12 +49,7 @@ class Solution(object):
             return TreeNode(preorder[b])
         
         root_value = preorder[b]
-
-        root_pos = b
-        for i in range(f, t):
-            if inorder[i] == root_value:
-                root_pos = i
-                break
+        root_pos = pos[root_value]
         
         root = TreeNode(root_value)
         left_len = root_pos - f
@@ -65,13 +60,15 @@ class Solution(object):
                                     b + 1 + left_len,
                                     inorder,
                                     f,
-                                    root_pos)
+                                    root_pos,
+                                    pos)
         
         root.right = self.createTree(preorder, b + 1 + left_len,
                                      e,
                                      inorder,
                                      root_pos + 1,
-                                     t)
+                                     t,
+                                     pos)
         return root
 
     def buildTree(self, preorder, inorder):
@@ -85,7 +82,11 @@ class Solution(object):
 
         if N <= 0:
             return None
+        
+        pos = {}
+        for i in range(0,N):
+            pos[inorder[i]] = i
 
-        return self.createTree(preorder, 0, N, inorder, 0, N)
+        return self.createTree(preorder, 0, N, inorder, 0, N, pos)
 # @lc code=end
 
